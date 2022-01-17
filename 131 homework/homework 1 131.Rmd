@@ -24,7 +24,6 @@ library(spotifyr)
 
 
 ```{r}
-
 print('hellochange')
 
 ```
