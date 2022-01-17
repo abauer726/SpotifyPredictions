@@ -1,0 +1,30 @@
+---
+title: "homework 1"
+name: "Anna Bauer"
+date: "Winter 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+# knitting options code folding: for getting rid of error messages: message = FALSE, warning = FALSE
+# install.packages('spotifyr')
+library(spotifyr)
+# make sure to comment every line or almost every line of code
+
+?spotifyr
+```
+
+
+
+```{r}
+
+print('hellochange')
+
+```
