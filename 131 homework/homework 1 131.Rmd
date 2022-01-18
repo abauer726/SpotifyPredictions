@@ -7,6 +7,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+algae <- read_table2("algaeBloom.txt", col_names=
+                       c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
 ```
 
 
