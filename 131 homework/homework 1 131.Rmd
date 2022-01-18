@@ -1,6 +1,6 @@
 ---
-title: "homework 1"
-name: "Anna Bauer"
+title: "Homework 1"
+name: "Anna Bauer, Grant Cai, Alexis Navarra"
 date: "Winter 2022"
 output: pdf_document
 ---
