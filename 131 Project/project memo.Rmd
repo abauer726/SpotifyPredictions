@@ -6,24 +6,42 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+install.packages("spotifyr")
+library(spotifyr)
 ```
 
-## R Markdown
+## Overview of our dataset
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+We have our data installed in an R package called spotifyr. The package contains many different functions that grant us access to data pertaining artists, tracks, albums, playlists, and more. This is a hyperlink to our data: [Spotify Dataset](https://www.rcharlie.com/spotifyr/).
+```{r, echo = F}
+Sys.setenv(SPOTIFY_CLIENT_ID = 'da295936d8a2457b8eae51d982b99425')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '9a802ea0578a4deeb0cdab988aae206a')
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+access_token <- get_spotify_access_token()
 
-```{r cars}
-summary(cars)
+joy <- get_artist_audio_features('joy division')
+head(joy)
+
+joy %>% 
+    arrange(-valence) %>% 
+    select(track_name, valence) %>% 
+    head(5) %>% 
+    kable()
+
+get_my_recently_played(limit = 5) %>% 
+    mutate(artist.name = map_chr(track.artists, function(x) x$name[1]),
+           played_at = as_datetime(played_at)) %>% 
+    select(track.name, artist.name, track.album.name, played_at) %>% 
+    kable()
 ```
 
-## Including Plots
+## Overview of our research question
 
-You can also embed plots, for example:
+We are interested in predicting if someone will skip a song based on their music preference 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+## Proposed project timeline and group work
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Any questions or concerns
