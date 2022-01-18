@@ -1,5 +1,6 @@
 ---
 title: "Project Memo"
+name: "Anna Bauer, Grant Cai, Alexis Navarra"
 output: html_document
 ---
 
