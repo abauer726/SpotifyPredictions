@@ -9,6 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 install.packages("spotifyr")
 library(spotifyr)
+
+library(tidyverse)
+library(knitr)
+library(lubridate)
 ```
 
 ## Overview of our dataset
