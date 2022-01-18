@@ -34,3 +34,10 @@ print('Hello World!')
 print('Hi guys its Lex')
 
 ```
+
+1. Descriptive summary statistics (10 pts in total) Given the lack of further information on the problem domain, it is wise to investigate some of the statistical properties of the data, so as to get a better grasp of the problem. It is always a good idea to start our analysis with some kind of exploratory data analysis. A first idea of the statistical properties of the data can be obtained through a summary of its descriptive statistics.
+
+a. Count the number of observations in each size using summarise() in dplyr.
+```{r}
+
+```
