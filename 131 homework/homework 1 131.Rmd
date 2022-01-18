@@ -9,18 +9,19 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 algae <- read_table2("algaeBloom.txt", col_names=
                        c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
+
+glimpse(algae)
 ```
 
 
 
 ```{r, message = FALSE, warning = FALSE}
-library(tidyverse)
-# knitting options code folding: for getting rid of error messages: message = FALSE, warning = FALSE
-# install.packages('spotifyr')
-library(spotifyr)
-# make sure to comment every line or almost every line of code
+library(knitr)
+# set global chunk options: images will be 7x5 inches
+knitr::opts_chunk$set(fig.width=7, fig.height=5)
+options(digits = 4)
 
-?spotifyr
+library(tidyverse)
 ```
 
 
