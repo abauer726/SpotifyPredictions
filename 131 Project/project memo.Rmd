@@ -12,7 +12,13 @@ library(spotifyr)
 
 library(tidyverse)
 library(knitr)
+```
+
+```{r}
+install.packages('lubridate')
 library(lubridate)
+install.packages("httpuv")
+library(httpuv)
 ```
 
 ## Overview of our dataset
