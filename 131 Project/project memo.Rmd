@@ -48,6 +48,7 @@ get_my_top_artists_or_tracks(type = 'tracks', time_range = 'short_term', limit =
     kable()
 
 ```
+
 ```{r}
 get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit = 5) %>% 
     select(name, genres) %>% 
@@ -56,6 +57,17 @@ get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit =
     ungroup %>% 
     kable()
 
+```
+
+```{r}
+my_id <- 'abauer726'
+my_plists <- get_user_playlists(my_id)
+
+# my_plists2 <- my_plists %>%
+#  filter(playlist_name %in% c('Taiwan Top 50',  'France Top 50', 'Bolivia Top 50', 'U.S. Top 50'))
+
+tracks <- get_playlist_tracks(my_plists)
+features <- get_track_audio_features(tracks)
 ```
 ## Overview of our research question
 
