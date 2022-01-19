@@ -9,7 +9,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-install.packages("spotifyr")
 library(spotifyr)
 
 library(tidyverse)
@@ -17,9 +16,9 @@ library(knitr)
 ```
 
 ```{r}
-install.packages('lubridate')
+
 library(lubridate)
-install.packages("httpuv")
+
 library(httpuv)
 ```
 
