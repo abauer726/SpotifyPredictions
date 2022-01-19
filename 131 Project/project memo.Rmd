@@ -1,23 +1,26 @@
 ---
 title: "Project Memo"
-name: "Anna Bauer, Grant Cai, Alexis Navarra"
-output: html_document
+name: Anna Bauer, Grant Cai, Alexis Navarra
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-install.packages("spotifyr")
-library(spotifyr)
-
-library(tidyverse)
-library(knitr)
 ```
 
-```{r}
-install.packages('lubridate')
-library(lubridate)
+```{r, echo=FALSE}
+install.packages("spotifyr")
 install.packages("httpuv")
+install.packages('lubridate')
+```
+
+```{r, echo=FALSE}
+library(spotifyr)
+library(tidyverse)
+library(knitr)
+library(lubridate)
 library(httpuv)
 ```
 
