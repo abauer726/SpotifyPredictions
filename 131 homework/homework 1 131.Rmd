@@ -7,16 +7,9 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-algae <- read_table2("algaeBloom.txt", col_names=
-                       c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
 
-glimpse(algae)
-```
-
-
-
-```{r, message = FALSE, warning = FALSE}
 library(knitr)
+
 # set global chunk options: images will be 7x5 inches
 knitr::opts_chunk$set(fig.width=7, fig.height=5)
 options(digits = 4)
@@ -24,14 +17,24 @@ options(digits = 4)
 library(tidyverse)
 
 install.packages("dplyr")
+
 library(dplyr)
+```
+
+
+
+```{r, message = FALSE, warning = FALSE}
+algae <- read_table2("algaeBloom.txt", col_names=
+                       c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
+
+glimpse(algae)
 ```
 
 1. Descriptive summary statistics (10 pts in total) Given the lack of further information on the problem domain, it is wise to investigate some of the statistical properties of the data, so as to get a better grasp of the problem. It is always a good idea to start our analysis with some kind of exploratory data analysis. A first idea of the statistical properties of the data can be obtained through a summary of its descriptive statistics.
 
 a. Count the number of observations in each size using summarise() in dplyr.
 ```{r}
-
+summarise(algae)
 ```
 
 b. Are there missing values? (2 pts) Calculate the mean and variance of each chemical (Ignore

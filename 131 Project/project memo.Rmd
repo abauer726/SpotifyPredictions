@@ -23,8 +23,15 @@ library(httpuv)
 
 ## Overview of our dataset
 
-We are using a data set called the Million Songs dataset as our training data. A preview of our dataset is provided below.
-*insert here
+We are using a subset of a data set called the Million Songs data set as our training data. A preview of our data set is provided below.
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup/main/131%20Project/data.csv?token=GHSAT0AAAAAABQVL6TOJ4JSLEHQSKZIQ6VEYPIRZJA")
+
+head(data)
+dim(data)
+```
+This data set has 170653 observation and 19 predictors.
+
 We are obtaining our test data through one of our group member's spotify accounts. We are able to access this data using an R package called spotifyr. The package contains many different functions that grant us access to data pertaining artists, tracks, albums, playlists, and more. This is a hyperlink to access this package: [Spotify Dataset](https://www.rcharlie.com/spotifyr/).
 ```{r, echo = F}
 Sys.setenv(SPOTIFY_CLIENT_ID = 'da295936d8a2457b8eae51d982b99425')
@@ -32,18 +39,10 @@ Sys.setenv(SPOTIFY_CLIENT_SECRET = '9a802ea0578a4deeb0cdab988aae206a')
 
 access_token <- get_spotify_access_token()
 
-joy <- get_artist_audio_features('joy division')
-head(joy)
-
-joy %>% 
-    arrange(-valence) %>% 
-    select(track_name, valence) %>% 
-    head(5) %>% 
-    kable()
 ```
 
-
-```{r}
+In order to test that we are able to access the data from Anna's spotify account, we ran some code to see if we could retrieve her top 5 songs at the moment. The results are shown below.
+```{r, echo = T}
 get_my_top_artists_or_tracks(type = 'tracks', time_range = 'short_term', limit = 5) %>% 
     mutate(artist.name = map_chr(artists, function(x) x$name[1])) %>% 
     select(name, artist.name, album.name) %>% 
@@ -51,7 +50,7 @@ get_my_top_artists_or_tracks(type = 'tracks', time_range = 'short_term', limit =
 
 ```
 
-```{r}
+```{r, echo = FALSE, results = 'hide'}
 get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit = 5) %>% 
     select(name, genres) %>% 
     rowwise %>% 
@@ -61,7 +60,7 @@ get_my_top_artists_or_tracks(type = 'artists', time_range = 'long_term', limit =
 
 ```
 
-```{r}
+```{r, echo = FALSE, results='hide'}
 my_id <- 'abauer726'
 my_plists <- get_user_playlists(my_id)
 
@@ -71,12 +70,30 @@ tracks <- get_playlist_tracks(my_plists2$id) %>%
     filter(name %in% c('Calm Vibes',  'dance final'))
 features <- get_track_audio_features(tracks)
 ```
+
+We only want to work with a portion of our 19 predictors. 
+
 ## Overview of our research question
 
 We are interested in predicting if someone will skip a song based on their music preference 
 
 ## Proposed project timeline and group work
 
+For a general timeline, we are going to follow closely along to the one that Professor Coburn attached to the syllabus. Here is a run-down of our timeline:
 
+Week 1: Find team + topic
+Week 2: Find data
+Week 3: Load data, tidy data, come up with scope of the project
+Week 4: Visualization 
+Week 5: Initial analysis
+Week 6: Initial analysis
+Week 7: Run models 
+Week 8: Run models
+Week 9: Write up results
+Week 10: Write up results
+
+Our group is going to be meeting weekly on Tuesdays at 12pm, where we will take a group look at what we need to accomplish for the week and delegate weekly tasks.
 
 ## Any questions or concerns
+
+We anticipate that this project is going to be difficult, as we are all generally new to coding + machine learning, so we will bring up questions throughout the quarter as needed. 
