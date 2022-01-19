@@ -1,7 +1,9 @@
 ---
 title: "Project Memo"
-name: "Anna Bauer, Grant Cai, Alexis Navarra"
-output: html_document
+name: Anna Bauer, Grant Cai, Alexis Navarra
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
