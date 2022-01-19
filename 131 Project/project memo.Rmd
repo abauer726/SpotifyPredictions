@@ -74,11 +74,14 @@ tracks <- get_playlist_tracks(my_plists2$id) %>%
 features <- get_track_audio_features(tracks)
 ```
 
-We only want to work with a portion of our 19 predictors. 
+We only want to work with a portion of the predictors in the data set: ___. 
+In our data set, there is ___ missing data
 
 ## Overview of our research question
 
-We are interested in predicting if someone will skip a song based on their music preference 
+Our research question is: are we able to predict whether or not someone will want to skip a song based on their music taste and certain qualities of the song?
+Our response variable is ___.
+We believe that our research question will be best answered with a classification approach. We believe that the predictors ___ will be especially useful in answering our research question.
 
 ## Proposed project timeline and group work
 
