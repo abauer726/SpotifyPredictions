@@ -23,7 +23,9 @@ library(httpuv)
 
 ## Overview of our dataset
 
-We are using a data set called the Million Songs dataset as our training data. We are obtaining our test data through one of our group member's spotify accounts. We are able to access this data using an R package called spotifyr. The package contains many different functions that grant us access to data pertaining artists, tracks, albums, playlists, and more. This is a hyperlink to access this package: [Spotify Dataset](https://www.rcharlie.com/spotifyr/).
+We are using a data set called the Million Songs dataset as our training data. A preview of our dataset is provided below.
+*insert here
+We are obtaining our test data through one of our group member's spotify accounts. We are able to access this data using an R package called spotifyr. The package contains many different functions that grant us access to data pertaining artists, tracks, albums, playlists, and more. This is a hyperlink to access this package: [Spotify Dataset](https://www.rcharlie.com/spotifyr/).
 ```{r, echo = F}
 Sys.setenv(SPOTIFY_CLIENT_ID = 'da295936d8a2457b8eae51d982b99425')
 Sys.setenv(SPOTIFY_CLIENT_SECRET = '9a802ea0578a4deeb0cdab988aae206a')
