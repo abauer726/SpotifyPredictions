@@ -100,7 +100,8 @@ b. (3 pts) Removing observations with missing values: use filter() function in d
 to observations with any missing value, and save the resulting dataset (without missing values) as
 algae.del. (1 pts) Report how many observations are in algae.del.
 ```{r}
-
+algae.del <- algae %>% filter(apply(!is.na(algae), MARGIN = 1, !is.na(algae)))
+algae.del
 ```
 
 
