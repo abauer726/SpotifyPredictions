@@ -88,6 +88,13 @@ c. (1 pts) Create a boxplot with the title â€˜A conditioned Boxplot of Algal a3â
 
 a. (2 pts) How many observations contain missing values? (2 pts) How many missing values are there
 in each variable?
+```{r}
+# Counting how many rows contain missing values
+sum(apply(algae, MARGIN = 1, anyNA))
+
+#Counting NA values for each variable/column
+apply(X = is.na(algae), MARGIN = 2, FUN = sum)
+```
 
 b. (3 pts) Removing observations with missing values: use filter() function in dplyr package
 to observations with any missing value, and save the resulting dataset (without missing values) as
