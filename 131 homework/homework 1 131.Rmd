@@ -34,7 +34,9 @@ glimpse(algae)
 
 a. Count the number of observations in each size using summarise() in dplyr.
 ```{r}
-summarise(algae)
+algae %>%
+  group_by(size) %>%
+    summarise(n = n())
 ```
 
 b. Are there missing values? (2 pts) Calculate the mean and variance of each chemical (Ignore
@@ -52,9 +54,6 @@ $$MAD = median(|X_i ≠ median(X)|)$$
 (3 pts) Compute median and MAD of each chemical and compare the two sets of quantities (i.e.,
 mean & variance vs. median & MAD). (1 pts) What do you notice?
 ```{r}
-<<<<<<< HEAD
-print('hellochange')
-=======
 
 ```
 
