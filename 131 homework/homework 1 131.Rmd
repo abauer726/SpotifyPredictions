@@ -107,5 +107,7 @@ training set, and drawn from the same model; (3) $$\hat{f(\cdot)}$$ is the estim
 a. (2 pts) Which of the term(s) in the bias-variance tradeoff above represent the reducible error? (2
 pts) Which term(s) represent the irreducible error?
 
+$$\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$$ is the reducible error. $$Var(\epsilon)$$ represents the irreducible error.
+
 b. (4 pts) Use the bias-variance tradeoff above to show that the expected test error is always at least
 as large as the irreducible error.
