@@ -1,6 +1,6 @@
 ---
 title: "Homework 1"
-name: Anna Bauer, Grant Cai, Alexis Navarra
+name: "Anna Bauer, Grant Cai, Alexis Navarra"
 date: "Winter 2022"
 output:
   html_document:
@@ -84,7 +84,7 @@ knitr::kable(list(median_col))
 knitr::kable(list(mad_col))
 
 ```
-The above code chunk calculates the median and MAD values of each chemical. We notice from these 
+The above code chunk calculates the median and MAD values of each chemical. We notice from these two calculations that overall, they are relatively close to one another. This indicates that in general, there are not very large deviations from the median. However, we noticed that the MAD of mxPH and mn02 both deviated a bit from the median.
 
 2. Data visualization (8 pts in total) Most of the time, the information in the data set is also well
 captured graphically. Histogram, scatter plot, boxplot, Q-Q plot are frequently used tools for data
@@ -116,14 +116,11 @@ algae_new <- algae                             # Duplicate data
 algae_new$group <- factor(algae_new$speed,     # Reorder factor levels
                          c("high", "medium", "low"))
 
-
 algae3 <- ggplot(algae_new, aes(y=a3, fill= speed, group)) + 
   ggtitle("A conditioned Boxplot of Algal a3") + 
   geom_boxplot()
 
-
 algae3
-
 ```
 
 We notice that there are multiple outliers, especially in the high speed group. Additionally, the range between the third quantile and the outliers is much larger than the range between the 1st and 3rd quantiles themselves. It appears that the median a3 values are fairly close together for each speed. The interquantile range is much smaller for low speed than medium speed.   
