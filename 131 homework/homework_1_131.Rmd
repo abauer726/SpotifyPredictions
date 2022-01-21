@@ -126,19 +126,6 @@ algae3
 
 ```
 
-```{r}
-algae_new <- algae                             # Duplicate data
-algae_new$group <- factor(algae_new$group,     # Reorder factor levels
-                         c("high", "medium", "low"))
-
-
-boxplot(algae_new$a3 ~ algae_new$group) 
-
-
-
-ggplot(data_new, aes(group, values)) +       # Reordered boxplot in ggplot2
-  geom_boxplot()
-```
 We notice that there are multiple outliers, especially in the high speed group. Additionally, the range between the third quantile and the outliers is much larger than the range between the 1st and 3rd quantiles themselves. It appears that the median a3 values are fairly close together for each speed. The interquantile range is much smaller for low speed than medium speed.   
 
 3. Dealing with missing values (8 pts in total)
