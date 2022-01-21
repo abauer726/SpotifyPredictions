@@ -48,12 +48,19 @@ chemicals?
 ```{r, echo = TRUE}
 summary(algae)
 ```
-From the summary table above, we can see the number of missing values and the mean of each chemical. The below code chunk calculates the variance whole accounting for the missing values in each of the chemical columns.
+From the summary table above, we can see the number of missing values in each column. The below code chunk calculates the mean and the variance while accounting for the missing values in each of the chemical columns.
 ```{r, echo = TRUE}
-cbind(
+mean_col <- cbind(
+  lapply(algae[4:11], FUN = mean, na.rm = T)
+)
+var_col <- cbind(
   lapply(algae[4:11], FUN = var, na.rm = T)
 )
+
+knitr::kable(list(mean_col))
+knitr::kable(list(var_col))
 ```
+We notice when making this calculation that some of the variance values are abnormally large (in particular, for chemicals C1, NH4, cPO4, and PO4). This indicates a large spread in the data points for these chemcials.
 
 c. Mean and Variance is one measure of central tendency and spread of data. Median and Median
 Absolute Deviation are alternative measures of central tendency and spread.
@@ -63,9 +70,18 @@ $$MAD = median(|X_i ≠ median(X)|)$$
 (3 pts) Compute median and MAD of each chemical and compare the two sets of quantities (i.e.,
 mean & variance vs. median & MAD). (1 pts) What do you notice?
 ```{r}
+median_col <- cbind(
+  lapply(algae[4:11], FUN = median, na.rm = T)
+)
+mad_col <- cbind(
+  lapply(algae[4:11], FUN = mad, na.rm = T)
+)
+
+knitr::kable(list(median_col))
+knitr::kable(list(mad_col))
 
 ```
-
+The above code chunk calculates the median and MAD values of each chemical. We notice from these 
 
 2. Data visualization (8 pts in total) Most of the time, the information in the data set is also well
 captured graphically. Histogram, scatter plot, boxplot, Q-Q plot are frequently used tools for data
