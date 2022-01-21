@@ -96,7 +96,7 @@ vertical axis. (Hint: look at the examples in the help file for function geom_hi
 Is the distribution skewed?
 ```{r}
 algae %>%
-  ggplot(aes(mn02)) + ggtitle("Histogram of mn02") +
+  ggplot(aes(mn02, y = after_stat(density))) + ggtitle("Histogram of mn02") +
   geom_histogram(aes(mn02))
 
 ```
