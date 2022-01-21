@@ -137,17 +137,16 @@ nrow(algae.del)
 
 4. In lecture we present the bias-variance tradeoff that takes the form 
 $$\mathbb{E}(y_0-\hat{f}(x_0))^2 = \text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2+\text{Var}(\epsilon)$$
-where the underlying model $$Y = f(X) + \epsilon$$ satisifes: (1) $$\epsilon$$ is a zero-mean random noise, and X is
-non-random (all randomness in Y comes from $$\epsilon$$); (2) $$(x_0, y_0)$$ is a test observation, independent of the
-training set, and drawn from the same model; (3) $$\hat{f(\cdot)}$$ is the estimate of f obtained on a training set.
->>>>>>> 5e24e526849e38a9d2ad33efe50da32d603c78ae
+where the underlying model $Y = f(X) + \epsilon$ satisifes: (1) $\epsilon$ is a zero-mean random noise, and X is
+non-random (all randomness in Y comes from $\epsilon$); (2) $(x_0, y_0)$ is a test observation, independent of the
+training set, and drawn from the same model; (3) $\hat{f(\cdot)}$ is the estimate of f obtained on a training set.
 
 a. (2 pts) Which of the term(s) in the bias-variance tradeoff above represent the reducible error? (2
 pts) Which term(s) represent the irreducible error?
 
-$$\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$$ is the reducible error. $$Var(\epsilon)$$ represents the irreducible error.
+$\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$ is the reducible error. $Var(\epsilon)$ represents the irreducible error.
 
 b. (4 pts) Use the bias-variance tradeoff above to show that the expected test error is always at least
 as large as the irreducible error.
 
-$$\text{Var}(\hat{f}(x_0))$$ is always non-negative, and so is the square of $$\text{Bias}(\hat{f}(x_0))$$. As a result, the expected test MSE is always at least as large as the irreducible error, $$\text{Var}(\epsilon)$$. (Maybe needs more explanation about why Var is non-negative).
+$\text{Var}(\hat{f}(x_0))$ is always non-negative, and so is the square of $\text{Bias}(\hat{f}(x_0))$. As a result, the expected test MSE is always at least as large as the irreducible error, $\text{Var}(\epsilon)$. (Maybe needs more explanation about why Var is non-negative).
