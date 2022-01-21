@@ -45,10 +45,12 @@ b. Are there missing values? (2 pts) Calculate the mean and variance of each che
 a1 through a7). (1 pts) What do you notice about the magnitude of the two quantities for different
 chemicals?
 
-Yes, there are missing values. 
-
-```{r}
-
+```{r, echo = TRUE}
+summary(algae)
+```
+From the summary table above, we can see the number of missing values and the mean of each chemical. The below code chunk calculates the variance whole accounting for the missing values in each of the chemical columns.
+```{r, echo = TRUE}
+var(x = algae, na.rm=TRUE)
 ```
 
 c. Mean and Variance is one measure of central tendency and spread of data. Median and Median
