@@ -50,7 +50,9 @@ summary(algae)
 ```
 From the summary table above, we can see the number of missing values and the mean of each chemical. The below code chunk calculates the variance whole accounting for the missing values in each of the chemical columns.
 ```{r, echo = TRUE}
-var(x = algae, na.rm=TRUE)
+cbind(
+  lapply(algae[4:11], FUN = var, na.rm = T)
+)
 ```
 
 c. Mean and Variance is one measure of central tendency and spread of data. Median and Median
