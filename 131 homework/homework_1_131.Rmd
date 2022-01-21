@@ -1,0 +1,152 @@
+---
+title: "Homework 1"
+name: Anna Bauer, Grant Cai, Alexis Navarra
+date: "Winter 2022"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+
+# set global chunk options: images will be 7x5 inches
+knitr::opts_chunk$set(fig.width=7, fig.height=5)
+options(digits = 4)
+
+library(tidyverse)
+
+# install.packages("dplyr")
+
+library(dplyr)
+```
+
+
+
+```{r, message = FALSE, warning = FALSE}
+algae <- read_table2("algaeBloom.txt", col_names=
+                       c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
+
+glimpse(algae)
+
+dim(algae)
+```
+
+1. Descriptive summary statistics (10 pts in total) Given the lack of further information on the problem domain, it is wise to investigate some of the statistical properties of the data, so as to get a better grasp of the problem. It is always a good idea to start our analysis with some kind of exploratory data analysis. A first idea of the statistical properties of the data can be obtained through a summary of its descriptive statistics.
+
+a. Count the number of observations in each size using summarise() in dplyr.
+```{r}
+algae %>%
+  group_by(size) %>%
+    summarise(n = n())
+```
+
+b. Are there missing values? (2 pts) Calculate the mean and variance of each chemical (Ignore
+a1 through a7). (1 pts) What do you notice about the magnitude of the two quantities for different
+chemicals?
+
+```{r, echo = TRUE}
+summary(algae)
+```
+From the summary table above, we can see the number of missing values in each column. The below code chunk calculates the mean and the variance while accounting for the missing values in each of the chemical columns.
+```{r, echo = TRUE}
+mean_col <- cbind(
+  lapply(algae[4:11], FUN = mean, na.rm = T)
+)
+var_col <- cbind(
+  lapply(algae[4:11], FUN = var, na.rm = T)
+)
+
+knitr::kable(list(mean_col))
+knitr::kable(list(var_col))
+```
+We notice when making this calculation that some of the variance values are abnormally large (in particular, for chemicals C1, NH4, cPO4, and PO4). This indicates a large spread in the data points for these chemcials.
+
+c. Mean and Variance is one measure of central tendency and spread of data. Median and Median
+Absolute Deviation are alternative measures of central tendency and spread.
+For a univariate data set X1,X2, ...,Xn, the Median Absolute Deviation (MAD) is defined as the
+median of the absolute deviations from the data’s median:
+$$MAD = median(|X_i ≠ median(X)|)$$
+(3 pts) Compute median and MAD of each chemical and compare the two sets of quantities (i.e.,
+mean & variance vs. median & MAD). (1 pts) What do you notice?
+```{r}
+median_col <- cbind(
+  lapply(algae[4:11], FUN = median, na.rm = T)
+)
+mad_col <- cbind(
+  lapply(algae[4:11], FUN = mad, na.rm = T)
+)
+
+knitr::kable(list(median_col))
+knitr::kable(list(mad_col))
+
+```
+The above code chunk calculates the median and MAD values of each chemical. We notice from these 
+
+2. Data visualization (8 pts in total) Most of the time, the information in the data set is also well
+captured graphically. Histogram, scatter plot, boxplot, Q-Q plot are frequently used tools for data
+visualization. Use ggplot for all of these visualizations.
+
+a. (2 pts) Produce a histogram of mnO2 with the title ‘Histogram of mnO2’ based on algae data
+set. (1 pts) Use an appropriate argument to show the probability instead of the frequency as the
+vertical axis. (Hint: look at the examples in the help file for function geom_histogram()). (1 pts)
+Is the distribution skewed?
+```{r}
+algae %>%
+  ggplot(aes(mn02)) + ggtitle("Histogram of mn02") +
+  geom_histogram(aes(mn02))
+
+```
+
+b. (1 pts) Add a density curve using geom_density() and (1 pts) rug plots using geom_rug() to
+above histogram.
+```{r}
+
+```
+
+c. (1 pts) Create a boxplot with the title ‘A conditioned Boxplot of Algal a3’ for a3 grouped by speed.
+(Refer to help page for geom_boxplot()). (1 pts) What do you notice?
+```{r}
+
+```
+
+
+3. Dealing with missing values (8 pts in total)
+
+a. (2 pts) How many observations contain missing values? (2 pts) How many missing values are there
+in each variable?
+```{r}
+# Counting how many rows contain missing values
+sum(apply(algae, MARGIN = 1, anyNA))
+
+#Counting NA values for each variable/column
+apply(X = is.na(algae), MARGIN = 2, FUN = sum)
+```
+
+b. (3 pts) Removing observations with missing values: use filter() function in dplyr package
+to observations with any missing value, and save the resulting dataset (without missing values) as
+algae.del. (1 pts) Report how many observations are in algae.del.
+```{r}
+algae.del <- algae %>% filter(complete.cases(.))
+nrow(algae.del)
+```
+
+
+4. In lecture we present the bias-variance tradeoff that takes the form 
+$$\mathbb{E}(y_0-\hat{f}(x_0))^2 = \text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2+\text{Var}(\epsilon)$$
+where the underlying model $Y = f(X) + \epsilon$ satisifes: (1) $\epsilon$ is a zero-mean random noise, and X is
+non-random (all randomness in Y comes from $\epsilon$); (2) $(x_0, y_0)$ is a test observation, independent of the
+training set, and drawn from the same model; (3) $\hat{f(\cdot)}$ is the estimate of f obtained on a training set.
+
+a. (2 pts) Which of the term(s) in the bias-variance tradeoff above represent the reducible error? (2
+pts) Which term(s) represent the irreducible error?
+
+$\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$ is the reducible error. $Var(\epsilon)$ represents the irreducible error.
+
+b. (4 pts) Use the bias-variance tradeoff above to show that the expected test error is always at least
+as large as the irreducible error.
+
+$\text{Var}(\hat{f}(x_0))$ is always non-negative, and so is the square of $\text{Bias}(\hat{f}(x_0))$. As a result, the expected test MSE is always at least as large as the irreducible error, $\text{Var}(\epsilon)$. (Maybe needs more explanation about why Var is non-negative).
