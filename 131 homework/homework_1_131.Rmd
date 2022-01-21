@@ -1,6 +1,6 @@
 ---
 title: "Homework 1"
-name: "Anna Bauer, Grant Cai, Alexis Navarra"
+author: "Anna Bauer, Grant Cai, Alexis Navarra"
 date: "Winter 2022"
 output:
   html_document:

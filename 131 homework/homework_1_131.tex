@@ -407,7 +407,10 @@ CHla & 6.6717\\
 \end{table}
 
 The above code chunk calculates the median and MAD values of each
-chemical. We notice from these
+chemical. We notice from these two calculations that overall, they are
+relatively close to one another. This indicates that in general, there
+are not very large deviations from the median. However, we noticed that
+the MAD of mxPH and mn02 both deviated a bit from the median.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -433,9 +436,12 @@ chemical. We notice from these
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02)) }\SpecialCharTok{+} \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Histogram of mn02"}\NormalTok{) }\SpecialCharTok{+}
+\NormalTok{algae1 }\OtherTok{\textless{}{-}}\NormalTok{ algae }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02, }\AttributeTok{y =} \FunctionTok{after\_stat}\NormalTok{(density))) }\SpecialCharTok{+} \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Histogram of mn02"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02))}
+
+
+\NormalTok{algae1}
 \end{Highlighting}
 \end{Shaded}
 
@@ -452,14 +458,64 @@ chemical. We notice from these
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
 \setcounter{enumi}{1}
+\tightlist
 \item
   (1 pts) Add a density curve using geom\_density() and (1 pts) rug
   plots using geom\_rug() to above histogram.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{algae1 }\SpecialCharTok{+} \FunctionTok{geom\_density}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing non-finite values (stat_bin).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing non-finite values (stat_density).
+\end{verbatim}
+
+\includegraphics{homework_1_131_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
 \item
   (1 pts) Create a boxplot with the title `A conditioned Boxplot of
   Algal a3' for a3 grouped by speed. (Refer to help page for
   geom\_boxplot()). (1 pts) What do you notice?
 \end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{algae\_new }\OtherTok{\textless{}{-}}\NormalTok{ algae                             }\CommentTok{\# Duplicate data}
+\NormalTok{algae\_new}\SpecialCharTok{$}\NormalTok{group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(algae\_new}\SpecialCharTok{$}\NormalTok{speed,     }\CommentTok{\# Reorder factor levels}
+                         \FunctionTok{c}\NormalTok{(}\StringTok{"high"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"low"}\NormalTok{))}
+
+\NormalTok{algae3 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(algae\_new, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{y=}\NormalTok{a3, }\AttributeTok{fill=}\NormalTok{ speed, group)) }\SpecialCharTok{+} 
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"A conditioned Boxplot of Algal a3"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_boxplot}\NormalTok{()}
+
+\NormalTok{algae3}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{homework_1_131_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+We notice that there are multiple outliers, especially in the high speed
+group. Additionally, the range between the third quantile and the
+outliers is much larger than the range between the 1st and 3rd quantiles
+themselves. It appears that the median a3 values are fairly close
+together for each speed. The interquantile range is much smaller for low
+speed than medium speed.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -535,7 +591,7 @@ chemical. We notice from these
   \(\epsilon\) is a zero-mean random noise, and X is non-random (all
   randomness in Y comes from \(\epsilon\)); (2) \((x_0, y_0)\) is a test
   observation, independent of the training set, and drawn from the same
-  model; (3) \(\hat{f}(\cdot)}\) is the estimate of f obtained on a
+  model; (3) \(\hat{f}(\cdot)\) is the estimate of f obtained on a
   training set.
 \end{enumerate}
 
