@@ -147,4 +147,4 @@ $$\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$$ is the reducible erro
 b. (4 pts) Use the bias-variance tradeoff above to show that the expected test error is always at least
 as large as the irreducible error.
 
-$$\text{Var}(\hat{f}(x_0))$$ is always non-negative, and so is the square of $$text{Bias}(\hat{f}(x_0))$$. As a result, the expected test MSE is always at least as large as the irreducible error, $$\text{Var}(\epsilon)$$. (Maybe needs more explanation about why Var is non-negative).
+$$\text{Var}(\hat{f}(x_0))$$ is always non-negative, and so is the square of $$\text{Bias}(\hat{f}(x_0))$$. As a result, the expected test MSE is always at least as large as the irreducible error, $$\text{Var}(\epsilon)$$. (Maybe needs more explanation about why Var is non-negative).
