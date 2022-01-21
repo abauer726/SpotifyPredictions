@@ -112,7 +112,8 @@ algae1 + geom_density()
 c. (1 pts) Create a boxplot with the title ‘A conditioned Boxplot of Algal a3’ for a3 grouped by speed.
 (Refer to help page for geom_boxplot()). (1 pts) What do you notice?
 ```{r}
-
+algae %>%
+  ggplot(aes(a3)) + ggtitle("A conditioned Boxplot of Algal a3") + geom_boxplot(aes(a3))
 ```
 
 
