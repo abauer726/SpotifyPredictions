@@ -134,7 +134,7 @@ in each variable?
 sum(apply(algae, MARGIN = 1, anyNA))
 
 #Counting NA values for each variable/column
-apply(X = is.na(algae), MARGIN = 2, FUN = sum)
+apply(is.na(algae), MARGIN = 2, sum)
 ```
 
 b. (3 pts) Removing observations with missing values: use filter() function in dplyr package
@@ -160,4 +160,4 @@ $\text{Var}(\hat{f}(x_0))+[\text{Bias}(\hat{f}(x_0))]^2$ is the reducible error.
 b. (4 pts) Use the bias-variance tradeoff above to show that the expected test error is always at least
 as large as the irreducible error.
 
-$\text{Var}(\hat{f}(x_0))$ is always non-negative, and so is the square of $\text{Bias}(\hat{f}(x_0))$. As a result, the expected test MSE is always at least as large as the irreducible error, $\text{Var}(\epsilon)$. (Maybe needs more explanation about why Var is non-negative).
+$\text{Var}(\hat{f}(x_0))$, being the expected value of a squared value, is always non-negative, and the square of $\text{Bias}(\hat{f}(x_0))$ is always positive because it is the square of a value. As a result, the expected test MSE is always at least as large as the irreducible error, $\text{Var}(\epsilon)$. 
