@@ -28,6 +28,8 @@ algae <- read_table2("algaeBloom.txt", col_names=
                        c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
 
 glimpse(algae)
+
+dim(algae)
 ```
 
 1. Descriptive summary statistics (10 pts in total) Given the lack of further information on the problem domain, it is wise to investigate some of the statistical properties of the data, so as to get a better grasp of the problem. It is always a good idea to start our analysis with some kind of exploratory data analysis. A first idea of the statistical properties of the data can be obtained through a summary of its descriptive statistics.
@@ -99,8 +101,8 @@ b. (3 pts) Removing observations with missing values: use filter() function in d
 to observations with any missing value, and save the resulting dataset (without missing values) as
 algae.del. (1 pts) Report how many observations are in algae.del.
 ```{r}
-algae.del <- algae %>% filter(apply(!is.na(algae), MARGIN = 1, !is.na(algae)))
-algae.del
+algae.del <- algae %>% filter(complete.cases(.))
+nrow(algae.del)
 ```
 
 
