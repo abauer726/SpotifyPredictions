@@ -3,7 +3,10 @@ title: "Homework 1"
 name: Anna Bauer, Grant Cai, Alexis Navarra
 date: "Winter 2022"
 output:
+<<<<<<< HEAD
+=======
   pdf_document: default
+>>>>>>> dd97affece214c70a1edc1939df93fce171fe131
   html_document:
     df_print: paged
 ---
