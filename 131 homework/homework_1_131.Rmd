@@ -102,6 +102,7 @@ algae1 <- algae %>%
 
 algae1
 ```
+
 The distribution is left skewed.
 
 b. (1 pts) Add a density curve using geom_density() and (1 pts) rug plots using geom_rug() to
