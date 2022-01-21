@@ -28,7 +28,7 @@ library(httpuv)
 
 We are using a subset of a data set called the Million Songs data set as our training data. A preview of our data set is provided below.
 ```{r}
-data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup/main/131%20Project/data.csv?token=GHSAT0AAAAAABQVL6TOJ4JSLEHQSKZIQ6VEYPIRZJA")
+data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup/main/131%20Project/Spotify%20Dataset/music.csv?token=GHSAT0AAAAAABQVL6TPLGINNLUNUHSBMIYOYPJ7TPA")
 
 head(data)
 dim(data)
