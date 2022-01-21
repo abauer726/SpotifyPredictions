@@ -112,10 +112,24 @@ algae1 + geom_density()
 c. (1 pts) Create a boxplot with the title ‘A conditioned Boxplot of Algal a3’ for a3 grouped by speed.
 (Refer to help page for geom_boxplot()). (1 pts) What do you notice?
 ```{r}
-algae %>%
-  ggplot(aes(a3)) + ggtitle("A conditioned Boxplot of Algal a3") + geom_boxplot(aes(a3))
-```
 
+algae3 <- ggplot(algae, aes(y=a3, fill= speed)) + 
+  ggtitle("A conditioned Boxplot of Algal a3") + 
+  geom_boxplot()
+
+
+algae3
+
+# factor(levels = c("high", "medium", "low"))
+
+# I reorder the groups order : I change the order of the factor data$names
+speednames <- factor(algae$names , levels=c("high", "medium", "low"))
+ 
+#The plot is now ordered !
+# oxplot(algae$a3 ~ speednames,  ylab="value" , 
+    # xlab="names in desired order")
+```
+We notice that there are multiple outliers, especially in the high speed group. Additionally, the range between the third quantile and the outliers is much larger than the range between the 1st and 3rd quantiles themselves. It appears that the median a3 values are fairly close together for each speed. The interquantile range is much smaller for low speed than medium speed.   
 
 3. Dealing with missing values (8 pts in total)
 
