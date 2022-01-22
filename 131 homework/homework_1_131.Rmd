@@ -9,15 +9,15 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE) #knitting functions
 
-library(knitr)
+library(knitr) # library for knit
 
 # set global chunk options: images will be 7x5 inches
 knitr::opts_chunk$set(fig.width=7, fig.height=5)
 options(digits = 4)
 
-library(tidyverse)
+library(tidyverse) # tidyverse library
 
 # install.packages("dplyr")
 
@@ -27,21 +27,20 @@ library(dplyr)
 
 
 ```{r, message = FALSE, warning = FALSE}
-algae <- read_table2("algaeBloom.txt", col_names=
-                       c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX")
+algae <- read_table2("algaeBloom.txt", col_names= c('season','size','speed','mxPH','mn02','C1','NO3','NH4','cPO4','PO4','CHla','a1','a2','a3','a4','a5','a6','a7'), na = "XXXXXXX") #assign data to new dataset with column names
 
-glimpse(algae)
+glimpse(algae) # view new dataset at a glimpse
 
-dim(algae)
+dim(algae) # get dimensions
 ```
 
 1. Descriptive summary statistics (10 pts in total) Given the lack of further information on the problem domain, it is wise to investigate some of the statistical properties of the data, so as to get a better grasp of the problem. It is always a good idea to start our analysis with some kind of exploratory data analysis. A first idea of the statistical properties of the data can be obtained through a summary of its descriptive statistics.
 
 a. Count the number of observations in each size using summarise() in dplyr.
 ```{r}
-algae %>%
-  group_by(size) %>%
-    summarise(n = n())
+algae %>% # algae dataset
+  group_by(size) %>% #group by size
+    summarise(n = n())  #summarse function to get # of observations
 ```
 
 b. Are there missing values? (2 pts) Calculate the mean and variance of each chemical (Ignore
@@ -49,19 +48,19 @@ a1 through a7). (1 pts) What do you notice about the magnitude of the two quanti
 chemicals?
 
 ```{r, echo = TRUE}
-summary(algae)
+summary(algae) # get summary
 ```
 From the summary table above, we can see the number of missing values in each column. The below code chunk calculates the mean and the variance while accounting for the missing values in each of the chemical columns.
 ```{r, echo = TRUE}
 mean_col <- cbind(
-  lapply(algae[4:11], FUN = mean, na.rm = T)
-)
+  lapply(algae[4:11], FUN = mean, na.rm = T) # use lapply
+) # define function for the mean of each column in algae
 var_col <- cbind(
-  lapply(algae[4:11], FUN = var, na.rm = T)
-)
+  lapply(algae[4:11], FUN = var, na.rm = T) # use lapply
+) # define function for the variance of each column in algae
 
-knitr::kable(list(mean_col))
-knitr::kable(list(var_col))
+knitr::kable(list(mean_col)) # display list
+knitr::kable(list(var_col)) # display list
 ```
 We notice when making this calculation that some of the variance values are abnormally large (in particular, for chemicals C1, NH4, cPO4, and PO4). This indicates a large spread in the data points for these chemcials.
 
@@ -74,15 +73,14 @@ $$MAD = median(|X_i ≠ median(X)|)$$
 mean & variance vs. median & MAD). (1 pts) What do you notice?
 ```{r}
 median_col <- cbind(
-  lapply(algae[4:11], FUN = median, na.rm = T)
-)
-mad_col <- cbind(
+  lapply(algae[4:11], FUN = median, na.rm = T) # use lapply
+) #define function for median of each column in algae
+mad_col <- cbind( 
   lapply(algae[4:11], FUN = mad, na.rm = T)
-)
+) # define function for mean absolute deviation of each column
 
-knitr::kable(list(median_col))
-knitr::kable(list(mad_col))
-
+knitr::kable(list(median_col)) # list medians
+knitr::kable(list(mad_col)) # list MADs
 ```
 The above code chunk calculates the median and MAD values of each chemical. We notice from these two calculations that overall, they are relatively close to one another. This indicates that in general, there are not very large deviations from the median. However, we noticed that the MAD of mxPH and mn02 both deviated a bit from the median.
 
@@ -96,33 +94,38 @@ vertical axis. (Hint: look at the examples in the help file for function geom_hi
 Is the distribution skewed?
 ```{r}
 algae1 <- algae %>%
-  ggplot(aes(mn02, y = after_stat(density))) + ggtitle("Histogram of mn02") +
-  geom_histogram(aes(mn02))
+  ggplot(aes(mn02, y = after_stat(density))) +  #include probability instead of count
+  ggtitle("Histogram of mn02") + # include title
+  geom_histogram(aes(mn02)) # define new object using ggplot to make a histogram
 
 
-algae1
+algae1 # print histogram
 ```
 
 The distribution is left skewed.
 
 b. (1 pts) Add a density curve using geom_density() and (1 pts) rug plots using geom_rug() to
 above histogram.
+
 ```{r}
-algae1 + geom_density()
+ggplot(data=algae) +
+geom_histogram(aes(mn02, y = after_stat(density))) +
+geom_density(aes(mn02, y = after_stat(density))) +
+geom_rug(aes(mn02) )
 ```
 
 c. (1 pts) Create a boxplot with the title ‘A conditioned Boxplot of Algal a3’ for a3 grouped by speed.
 (Refer to help page for geom_boxplot()). (1 pts) What do you notice?
 ```{r}
-algae_new <- algae                             # Duplicate data
-algae_new$group <- factor(algae_new$speed,     # Reorder factor levels
-                         c("high", "medium", "low"))
+algae_new <- algae # Duplicate data
+algae_new$group <- factor(algae_new$speed,
+                         c("high", "medium", "low"))   # Reorder factor levels to be in order
 
-algae3 <- ggplot(algae_new, aes(y=a3, fill= speed, group)) + 
-  ggtitle("A conditioned Boxplot of Algal a3") + 
-  geom_boxplot()
+algae3 <- ggplot(algae_new, aes(y=a3, fill= speed, group)) +  # use ggplot with a3
+  ggtitle("A conditioned Boxplot of Algal a3") + #make title
+  geom_boxplot() # make boxplot
 
-algae3
+algae3 # display
 ```
 
 We notice that there are multiple outliers, especially in the high speed group. Additionally, the range between the third quantile and the outliers is much larger than the range between the 1st and 3rd quantiles themselves. It appears that the median a3 values are fairly close together for each speed. The interquantile range is much smaller for low speed than medium speed.   
@@ -143,8 +146,8 @@ b. (3 pts) Removing observations with missing values: use filter() function in d
 to observations with any missing value, and save the resulting dataset (without missing values) as
 algae.del. (1 pts) Report how many observations are in algae.del.
 ```{r}
-algae.del <- algae %>% filter(complete.cases(.))
-nrow(algae.del)
+algae.del <- algae %>% filter(complete.cases(.)) # remove observations using filter
+nrow(algae.del) # record number of rows with missing values removed
 ```
 
 
