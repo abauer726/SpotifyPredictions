@@ -5,8 +5,8 @@
 \documentclass[
 ]{article}
 \title{Homework 1}
-\author{}
-\date{\vspace{-2.5em}Winter 2022}
+\author{Anna Bauer, Grant Cai, Alexis Navarra}
+\date{Winter 2022}
 
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
@@ -41,6 +41,7 @@
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
   pdftitle={Homework 1},
+  pdfauthor={Anna Bauer, Grant Cai, Alexis Navarra},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
@@ -111,10 +112,9 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae }\OtherTok{\textless{}{-}} \FunctionTok{read\_table2}\NormalTok{(}\StringTok{"algaeBloom.txt"}\NormalTok{, }\AttributeTok{col\_names=}
-                       \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}season\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}size\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}speed\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}mxPH\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}mn02\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}C1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}NO3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}NH4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}cPO4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}PO4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}CHla\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a5\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a6\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a7\textquotesingle{}}\NormalTok{), }\AttributeTok{na =} \StringTok{"XXXXXXX"}\NormalTok{)}
+\NormalTok{algae }\OtherTok{\textless{}{-}} \FunctionTok{read\_table2}\NormalTok{(}\StringTok{"algaeBloom.txt"}\NormalTok{, }\AttributeTok{col\_names=} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}season\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}size\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}speed\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}mxPH\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}mn02\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}C1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}NO3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}NH4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}cPO4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}PO4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}CHla\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a5\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a6\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}a7\textquotesingle{}}\NormalTok{), }\AttributeTok{na =} \StringTok{"XXXXXXX"}\NormalTok{) }\CommentTok{\#assign data to new dataset with column names}
 
-\FunctionTok{glimpse}\NormalTok{(algae)}
+\FunctionTok{glimpse}\NormalTok{(algae) }\CommentTok{\# view new dataset at a glimpse}
 \end{Highlighting}
 \end{Shaded}
 
@@ -143,7 +143,7 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{dim}\NormalTok{(algae)}
+\FunctionTok{dim}\NormalTok{(algae) }\CommentTok{\# get dimensions}
 \end{Highlighting}
 \end{Shaded}
 
@@ -174,9 +174,9 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{group\_by}\NormalTok{(size) }\SpecialCharTok{\%\textgreater{}\%}
-    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{n =} \FunctionTok{n}\NormalTok{())}
+\NormalTok{algae }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# algae dataset}
+  \FunctionTok{group\_by}\NormalTok{(size) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\#group by size}
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{n =} \FunctionTok{n}\NormalTok{())  }\CommentTok{\#summarse function to get \# of observations}
 \end{Highlighting}
 \end{Shaded}
 
@@ -201,7 +201,7 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{summary}\NormalTok{(algae)}
+\FunctionTok{summary}\NormalTok{(algae) }\CommentTok{\# get summary}
 \end{Highlighting}
 \end{Shaded}
 
@@ -255,13 +255,13 @@ while accounting for the missing values in each of the chemical columns.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{mean\_col }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}
-  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ mean, }\AttributeTok{na.rm =}\NormalTok{ T)}
-\NormalTok{)}
+  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ mean, }\AttributeTok{na.rm =}\NormalTok{ T) }\CommentTok{\# use lapply}
+\NormalTok{) }\CommentTok{\# define function for the mean of each column in algae}
 \NormalTok{var\_col }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}
-  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ var, }\AttributeTok{na.rm =}\NormalTok{ T)}
-\NormalTok{)}
+  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ var, }\AttributeTok{na.rm =}\NormalTok{ T) }\CommentTok{\# use lapply}
+\NormalTok{) }\CommentTok{\# define function for the variance of each column in algae}
 
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(mean\_col))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(mean\_col)) }\CommentTok{\# display list}
 \end{Highlighting}
 \end{Shaded}
 
@@ -291,7 +291,7 @@ CHla & 13.9711968085106\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(var\_col))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(var\_col)) }\CommentTok{\# display list}
 \end{Highlighting}
 \end{Shaded}
 
@@ -342,13 +342,13 @@ chemcials.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{median\_col }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}
-  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ median, }\AttributeTok{na.rm =}\NormalTok{ T)}
-\NormalTok{)}
-\NormalTok{mad\_col }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}
+  \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ median, }\AttributeTok{na.rm =}\NormalTok{ T) }\CommentTok{\# use lapply}
+\NormalTok{) }\CommentTok{\#define function for median of each column in algae}
+\NormalTok{mad\_col }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{( }
   \FunctionTok{lapply}\NormalTok{(algae[}\DecValTok{4}\SpecialCharTok{:}\DecValTok{11}\NormalTok{], }\AttributeTok{FUN =}\NormalTok{ mad, }\AttributeTok{na.rm =}\NormalTok{ T)}
-\NormalTok{)}
+\NormalTok{) }\CommentTok{\# define function for mean absolute deviation of each column}
 
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(median\_col))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(median\_col)) }\CommentTok{\# list medians}
 \end{Highlighting}
 \end{Shaded}
 
@@ -378,7 +378,7 @@ CHla & 5.475\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(mad\_col))}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{list}\NormalTok{(mad\_col)) }\CommentTok{\# list MADs}
 \end{Highlighting}
 \end{Shaded}
 
@@ -437,11 +437,12 @@ the MAD of mxPH and mn02 both deviated a bit from the median.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{algae1 }\OtherTok{\textless{}{-}}\NormalTok{ algae }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02, }\AttributeTok{y =} \FunctionTok{after\_stat}\NormalTok{(density))) }\SpecialCharTok{+} \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Histogram of mn02"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02))}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02, }\AttributeTok{y =} \FunctionTok{after\_stat}\NormalTok{(density))) }\SpecialCharTok{+}  \CommentTok{\#include probability instead of count}
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Histogram of mn02"}\NormalTok{) }\SpecialCharTok{+} \CommentTok{\# include title}
+  \FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02)) }\CommentTok{\# define new object using ggplot to make a histogram}
 
 
-\NormalTok{algae1}
+\NormalTok{algae1 }\CommentTok{\# print histogram}
 \end{Highlighting}
 \end{Shaded}
 
@@ -449,11 +450,9 @@ the MAD of mxPH and mn02 both deviated a bit from the median.
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 \end{verbatim}
 
-\begin{verbatim}
-## Warning: Removed 2 rows containing non-finite values (stat_bin).
-\end{verbatim}
-
 \includegraphics{homework_1_131_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+The distribution is left skewed.
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi}.}
@@ -466,20 +465,15 @@ the MAD of mxPH and mn02 both deviated a bit from the median.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae1 }\SpecialCharTok{+} \FunctionTok{geom\_density}\NormalTok{()}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{algae) }\SpecialCharTok{+}  \CommentTok{\#use ggplot for the histogram with algae data}
+\FunctionTok{geom\_histogram}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02, }\AttributeTok{y =} \FunctionTok{after\_stat}\NormalTok{(density))) }\SpecialCharTok{+} \CommentTok{\#add histogram with density}
+\FunctionTok{geom\_density}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02, }\AttributeTok{y =} \FunctionTok{after\_stat}\NormalTok{(density))) }\SpecialCharTok{+} \CommentTok{\# add density curve}
+\FunctionTok{geom\_rug}\NormalTok{(}\FunctionTok{aes}\NormalTok{(mn02)) }\CommentTok{\# add rug plot}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing non-finite values (stat_bin).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing non-finite values (stat_density).
 \end{verbatim}
 
 \includegraphics{homework_1_131_files/figure-latex/unnamed-chunk-7-1.pdf}
@@ -496,15 +490,15 @@ the MAD of mxPH and mn02 both deviated a bit from the median.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae\_new }\OtherTok{\textless{}{-}}\NormalTok{ algae                             }\CommentTok{\# Duplicate data}
-\NormalTok{algae\_new}\SpecialCharTok{$}\NormalTok{group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(algae\_new}\SpecialCharTok{$}\NormalTok{speed,     }\CommentTok{\# Reorder factor levels}
-                         \FunctionTok{c}\NormalTok{(}\StringTok{"high"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"low"}\NormalTok{))}
+\NormalTok{algae\_new }\OtherTok{\textless{}{-}}\NormalTok{ algae }\CommentTok{\# Duplicate data}
+\NormalTok{algae\_new}\SpecialCharTok{$}\NormalTok{group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(algae\_new}\SpecialCharTok{$}\NormalTok{speed,}
+                         \FunctionTok{c}\NormalTok{(}\StringTok{"high"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"low"}\NormalTok{))   }\CommentTok{\# Reorder factor levels to be in order}
 
-\NormalTok{algae3 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(algae\_new, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{y=}\NormalTok{a3, }\AttributeTok{fill=}\NormalTok{ speed, group)) }\SpecialCharTok{+} 
-  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"A conditioned Boxplot of Algal a3"}\NormalTok{) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_boxplot}\NormalTok{()}
+\NormalTok{algae3 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(algae\_new, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{y=}\NormalTok{a3, }\AttributeTok{fill=}\NormalTok{ speed, group)) }\SpecialCharTok{+}  \CommentTok{\# use ggplot with a3}
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"A conditioned Boxplot of Algal a3"}\NormalTok{) }\SpecialCharTok{+} \CommentTok{\#make title}
+  \FunctionTok{geom\_boxplot}\NormalTok{() }\CommentTok{\# make boxplot}
 
-\NormalTok{algae3}
+\NormalTok{algae3 }\CommentTok{\# display}
 \end{Highlighting}
 \end{Shaded}
 
@@ -547,7 +541,7 @@ speed than medium speed.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\#Counting NA values for each variable/column}
-\FunctionTok{apply}\NormalTok{(}\AttributeTok{X =} \FunctionTok{is.na}\NormalTok{(algae), }\AttributeTok{MARGIN =} \DecValTok{2}\NormalTok{, }\AttributeTok{FUN =}\NormalTok{ sum)}
+\FunctionTok{apply}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(algae), }\AttributeTok{MARGIN =} \DecValTok{2}\NormalTok{, sum)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -571,8 +565,8 @@ speed than medium speed.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{algae.del }\OtherTok{\textless{}{-}}\NormalTok{ algae }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{complete.cases}\NormalTok{(.))}
-\FunctionTok{nrow}\NormalTok{(algae.del)}
+\NormalTok{algae.del }\OtherTok{\textless{}{-}}\NormalTok{ algae }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{complete.cases}\NormalTok{(.)) }\CommentTok{\# remove observations using filter}
+\FunctionTok{nrow}\NormalTok{(algae.del) }\CommentTok{\# record number of rows with missing values removed}
 \end{Highlighting}
 \end{Shaded}
 
@@ -616,10 +610,10 @@ reducible error. \(Var(\epsilon)\) represents the irreducible error.
   test error is always at least as large as the irreducible error.
 \end{enumerate}
 
-\(\text{Var}(\hat{f}(x_0))\) is always non-negative, and so is the
-square of \(\text{Bias}(\hat{f}(x_0))\). As a result, the expected test
-MSE is always at least as large as the irreducible error,
-\(\text{Var}(\epsilon)\). (Maybe needs more explanation about why Var is
-non-negative).
+\(\text{Var}(\hat{f}(x_0))\), being the expected value of a squared
+value, is always non-negative, and the square of
+\(\text{Bias}(\hat{f}(x_0))\) is always positive because it is the
+square of a value. As a result, the expected test MSE is always at least
+as large as the irreducible error, \(\text{Var}(\epsilon)\).
 
 \end{document}

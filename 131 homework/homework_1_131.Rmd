@@ -108,10 +108,10 @@ b. (1 pts) Add a density curve using geom_density() and (1 pts) rug plots using 
 above histogram.
 
 ```{r, warning = FALSE}
-ggplot(data=algae) +
-geom_histogram(aes(mn02, y = after_stat(density))) +
-geom_density(aes(mn02, y = after_stat(density))) +
-geom_rug(aes(mn02) )
+ggplot(data=algae) +  #use ggplot for the histogram with algae data
+geom_histogram(aes(mn02, y = after_stat(density))) + #add histogram with density
+geom_density(aes(mn02, y = after_stat(density))) + # add density curve
+geom_rug(aes(mn02)) # add rug plot
 ```
 
 c. (1 pts) Create a boxplot with the title ‘A conditioned Boxplot of Algal a3’ for a3 grouped by speed.
