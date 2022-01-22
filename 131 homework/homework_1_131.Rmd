@@ -92,7 +92,7 @@ a. (2 pts) Produce a histogram of mnO2 with the title ‘Histogram of mnO2’ ba
 set. (1 pts) Use an appropriate argument to show the probability instead of the frequency as the
 vertical axis. (Hint: look at the examples in the help file for function geom_histogram()). (1 pts)
 Is the distribution skewed?
-```{r}
+```{r, warning = FALSE}
 algae1 <- algae %>%
   ggplot(aes(mn02, y = after_stat(density))) +  #include probability instead of count
   ggtitle("Histogram of mn02") + # include title
@@ -107,7 +107,7 @@ The distribution is left skewed.
 b. (1 pts) Add a density curve using geom_density() and (1 pts) rug plots using geom_rug() to
 above histogram.
 
-```{r}
+```{r, warning = FALSE}
 ggplot(data=algae) +
 geom_histogram(aes(mn02, y = after_stat(density))) +
 geom_density(aes(mn02, y = after_stat(density))) +
