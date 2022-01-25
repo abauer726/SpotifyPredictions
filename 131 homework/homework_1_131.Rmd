@@ -110,6 +110,7 @@ above histogram.
 ```{r, warning = FALSE}
 ggplot(data=algae) +  #use ggplot for the histogram with algae data
 geom_histogram(aes(mn02, y = after_stat(density))) + #add histogram with density
+ggtitle("Histogram of mn02") + # include title
 geom_density(aes(mn02, y = after_stat(density))) + # add density curve
 geom_rug(aes(mn02)) # add rug plot
 ```
