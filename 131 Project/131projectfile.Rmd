@@ -3,8 +3,12 @@ title: "131projectfile"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, echo=FALSE}
+library(spotifyr)
+library(tidyverse)
+library(knitr)
+library(lubridate)
+library(httpuv)
 ```
 
 ## R Markdown
@@ -13,10 +17,9 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-# hi this is a new change
-print('hello')
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup/main/131%20Project/Spotify%20Dataset/music.csv?token=GHSAT0AAAAAABQVVO3OPO66XXKMIJFCVAKWYPJ74BQ")
+
 ```
 
 ## Including Plots
