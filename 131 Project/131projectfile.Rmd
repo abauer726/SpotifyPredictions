@@ -18,7 +18,11 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup/main/131%20Project/Spotify%20Dataset/music.csv?token=GHSAT0AAAAAABQVVO3OPO66XXKMIJFCVAKWYPJ74BQ")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+View(music)
+
+
+# New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
 
 ```
 
@@ -26,10 +30,18 @@ data <- read.csv("https://raw.githubusercontent.com/abauer726/DoubleProjectGroup
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r pressure, echo=T}
+energy <- ggplot(music,aes(x=energy,y=popularity))+geom_point()
+energy
 
-#hmmmmm hey hey hey
+liveness <- ggplot(music,aes(x=liveness, y=popularity))+geom_point()
+liveness
+```
+
+
+```{r}
+valence <- ggplot(music, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
+valence
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
