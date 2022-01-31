@@ -26,22 +26,29 @@ View(music)
 
 ```
 
+```{r}
+# randomly subset syntax, with 100 points (couldnt run this due to the file not loading)
+
+sample <- music[sample(nrow(music), 100), ]
+```
+
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r pressure, echo=T}
-energy <- ggplot(music,aes(x=energy,y=popularity))+geom_point()
+energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
 energy
 
-liveness <- ggplot(music,aes(x=liveness, y=popularity))+geom_point()
+liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
 liveness
 ```
 
 
 ```{r}
-valence <- ggplot(music, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
+valence <- ggplot(sample, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
 valence
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
