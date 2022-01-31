@@ -3,12 +3,8 @@ title: "131projectfile"
 output: html_document
 ---
 
-```{r, echo=FALSE}
-library(spotifyr)
-library(tidyverse)
-library(knitr)
-library(lubridate)
-library(httpuv)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
@@ -17,31 +13,18 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r}
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
-View(music)
+```{r cars}
+summary(cars)
 
-
-# New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
-
+print('hello')
 ```
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=T}
-energy <- ggplot(music,aes(x=energy,y=popularity))+geom_point()
-energy
-
-liveness <- ggplot(music,aes(x=liveness, y=popularity))+geom_point()
-liveness
-```
-
-
-```{r}
-valence <- ggplot(music, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
-valence
+```{r pressure, echo=FALSE}
+plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
