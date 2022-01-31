@@ -12,7 +12,7 @@ library(httpuv)
 ```
 
 ```{r}
-music <- read.csv("131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("https://github.com/abauer726/DoubleProjectGroup/blob/main/131%20Project/Spotify%20Dataset/musicdata.csv")
 View(music)
 
 
