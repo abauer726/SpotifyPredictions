@@ -9,10 +9,19 @@ library(tidyverse)
 library(knitr)
 library(lubridate)
 library(httpuv)
+library(cluster)
+library(factoextra)
 ```
 
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
 ```{r}
-music <- read.csv("https://github.com/abauer726/DoubleProjectGroup/blob/main/131%20Project/Spotify%20Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+musicwgenre <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv")
 View(music)
 
 
@@ -20,28 +29,36 @@ View(music)
 
 ```
 
+```{r}
+# randomly subset syntax, with 100 points (couldnt run this due to the file not loading)
+
+sample <- music[sample(nrow(music), 100), ]
+sample2 <- musicwgenre[sample(nrow(musicwgenre),100), ]
+View(sample2)
+```
+
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r pressure, echo=T}
-energy <- ggplot(music,aes(x=energy,y=popularity))+geom_point()
+energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
 energy
 
-liveness <- ggplot(music,aes(x=liveness, y=popularity))+geom_point()
+liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
 liveness
+
+danceability <- ggplot(sample, aes(x=danceability, y=popularity))+geom_point()
+danceability
+
+key <- ggplot(sample, aes(x=key, y = popularity))+geom_bar(stat='identity')
+key
+
+explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
+              labels=c("Clean", "Explicit"))
+explicit
+
 ```
 
-
-```{r}
-valence <- ggplot(music, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
-valence
-```
-
-```{r}
-# randomly subset syntax, with 100 points (couldnt run this due to the file not loading)
-
-music[sample(nrow(music), 100), ]
-```
-
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
