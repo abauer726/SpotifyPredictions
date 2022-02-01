@@ -9,6 +9,8 @@ library(tidyverse)
 library(knitr)
 library(lubridate)
 library(httpuv)
+library(cluster)
+library(factoextra)
 ```
 
 ## R Markdown
@@ -19,6 +21,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r}
 music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+musicwgenre <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv")
 View(music)
 
 
@@ -30,6 +33,8 @@ View(music)
 # randomly subset syntax, with 100 points (couldnt run this due to the file not loading)
 
 sample <- music[sample(nrow(music), 100), ]
+sample2 <- musicwgenre[sample(nrow(musicwgenre),100), ]
+View(sample2)
 ```
 
 ## Including Plots
@@ -42,12 +47,16 @@ energy
 
 liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
 liveness
-```
 
+danceability <- ggplot(sample, aes(x=danceability, y=popularity))+geom_point()
+danceability
 
-```{r}
-valence <- ggplot(sample, aes(x=valence, y=popularity))+geom_point(alpha=0.2) + facet_grid(vars(danceability))
-valence
+key <- ggplot(sample, aes(x=key, y = popularity))+geom_bar(stat='identity')
+key
+
+explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
+              labels=c("Clean", "Explicit"))
+explicit
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
