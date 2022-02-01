@@ -58,7 +58,6 @@ explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='ide
               labels=c("Clean", "Explicit"))
 explicit
 
-# plots are fun
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
