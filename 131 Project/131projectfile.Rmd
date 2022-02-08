@@ -11,6 +11,8 @@ library(lubridate)
 library(httpuv)
 library(cluster)
 library(factoextra)
+library(data.table)
+library(dplyr)
 ```
 
 ## R Markdown
@@ -20,8 +22,8 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
-musicwgenre <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+musicwgenre <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv")
 View(music)
 
 
@@ -76,7 +78,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 #set seed
 set.seed(123)
 # Sample 700 observations as training data 
-trainsample = sort(sample(nrow(music), nrow(music)*.1))
+trainsample = sort(sample(nrow(music), nrow(music)*.7))
 # define dat.train as the 700 observstions 
 train = music[trainsample,]
 # The rest as test data
@@ -86,9 +88,25 @@ test = music[-trainsample,]
 
 
 ```{r}
-fit <- lm(popularity ~ ., data = train)
+artist_pop_table <- aggregate(train$popularity, list(train$artists), FUN = mean)
+artist_pop_table
+# train_mod1 = train %>%
+#   mutate(artist_avg_pop = aggregate(.~artists,data=train,mean))
+# 
+# fit <- lm(popularity ~ year + artist_avg_pop + valence + acousticness + duration_ms + explicit + instrumentalness + key + liveness + loudness + mode + speechiness + tempo + danceability + energy, data = train_mod1)
+# 
+# summary(fit)
 
-
+artist_pop_table$Group.1 <- toString(artist_pop_table$Group.1)
+# music$artists <- toString(music$artists)
+artist_pop_table
+# 
+# train$artist_popularity <- 0
+# for (artist in train$artists){
+#   if (artist_pop_table$Group.1 == artist){
+#     train$artist_popularity = artist_pop_table$x
+#   }
+# }
 ```
 
 
