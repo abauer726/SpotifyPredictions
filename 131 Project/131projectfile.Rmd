@@ -22,8 +22,8 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
-musicwgenre <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv")
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+
 View(music)
 
 
@@ -53,6 +53,7 @@ View(sample2)
 You can also embed plots, for example:
 
 ```{r pressure, echo=T}
+# making some visualizations
 energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
 energy
 
@@ -75,6 +76,8 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 
 ```{r}
+# split training and testing data\
+
 #set seed
 set.seed(123)
 # Sample 700 observations as training data 
@@ -88,25 +91,13 @@ test = music[-trainsample,]
 
 
 ```{r}
-artist_pop_table <- aggregate(train$popularity, list(train$artists), FUN = mean)
+# creating a new numeric variable for specific artist average popularity
+artist_pop_table <- aggregate(music$popularity, list(music$artists), FUN = mean)
 artist_pop_table
-# train_mod1 = train %>%
-#   mutate(artist_avg_pop = aggregate(.~artists,data=train,mean))
-# 
-# fit <- lm(popularity ~ year + artist_avg_pop + valence + acousticness + duration_ms + explicit + instrumentalness + key + liveness + loudness + mode + speechiness + tempo + danceability + energy, data = train_mod1)
-# 
-# summary(fit)
 
-artist_pop_table$Group.1 <- toString(artist_pop_table$Group.1)
-# music$artists <- toString(music$artists)
-artist_pop_table
-# 
-# train$artist_popularity <- 0
-# for (artist in train$artists){
-#   if (artist_pop_table$Group.1 == artist){
-#     train$artist_popularity = artist_pop_table$x
-#   }
-# }
+full_merge <- merge(x = music, y = artist_pop_table, by.x = c("artists"), by.y = c("Group.1"), all.x = TRUE)
+
+View(full_merge)
 ```
 
 
