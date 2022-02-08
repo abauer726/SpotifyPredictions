@@ -71,3 +71,25 @@ explicit
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+
+```{r}
+#set seed
+set.seed(123)
+# Sample 700 observations as training data 
+trainsample = sort(sample(nrow(music), nrow(music)*.1))
+# define dat.train as the 700 observstions 
+train = music[trainsample,]
+# The rest as test data
+test = music[-trainsample,]
+
+```
+
+
+```{r}
+fit <- lm(popularity ~ ., data = train)
+
+
+```
+
+
+
