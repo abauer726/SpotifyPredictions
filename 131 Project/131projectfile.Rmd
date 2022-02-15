@@ -43,44 +43,12 @@ View(music)
 
 # lex path name music: /Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv
 # lex path name music w genre: /Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv
-sample <- music[sample(nrow(music), 100), ]
-sample2 <- musicwgenre[sample(nrow(musicwgenre),100), ]
-View(sample2)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=T}
-# some EDA plots  
-valence <- ggplot(sample )
-
-energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
-energy
-
-liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
-liveness
-
-danceability <- ggplot(sample, aes(x=danceability, y=popularity))+geom_point()
-danceability
-
-key <- ggplot(sample, aes(x=key, y = popularity))+geom_bar(stat='identity')
-key
-
-explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
-              labels=c("Clean", "Explicit"))
-explicit
-
-
-
 ```
 
 
 ```{r}
 # creating a new numeric variable for specific artist average popularity
 artist_pop_table <- aggregate(music$popularity, list(music$artists), FUN = mean)
-artist_pop_table
 
 full_merge <- merge(x = music, y = artist_pop_table, by.x = c("artists"), by.y = c("Group.1"), all.x = TRUE)
 
@@ -89,28 +57,63 @@ full_data <- rename(full_merge, avg_art_pop = x)
 View(full_data)
 ```
 
+```{r}
+set.seed((123))
+# sample data to use for exploratory graphics
+sample <- full_data[sample(nrow(full_data), 100), ]
+View(sample)
+```
+
 ```{r pressure, echo=T}
-# some EDA plots  
-valence <- ggplot(sample )
+# some EDA plots to decide which predictor to add into our recipe
+valence <- ggplot(sample, aes(x=valence, y=popularity)) + geom_point()
+valence
 
-energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
-energy
+year <- ggplot(sample, aes(x=year, y = popularity)) + geom_point()
+year
 
-liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
-liveness
+acousticness <- ggplot(sample, aes(x=acousticness, y=popularity)) + geom_point()
+acousticness
 
-danceability <- ggplot(sample, aes(x=danceability, y=popularity))+geom_point()
+danceability <- ggplot(sample, aes(x=danceability, y=popularity)) + geom_point()
 danceability
 
-key <- ggplot(sample, aes(x=key, y = popularity))+geom_bar(stat='identity')
-key
+duration <- ggplot(sample, aes(x=duration_ms, y=popularity)) + geom_point()
+duration
 
-explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
-              labels=c("Clean", "Explicit"))
+energy <- ggplot(sample, aes(x=energy, y=popularity)) + geom_point()
+energy
+
+explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1, labels=c("Clean", "Explicit"))
 explicit
 
+instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point()
+instrumentalness
 
+key <- ggplot(sample, aes(x=key, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:11,
+              labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
+key
 
+liveness <- ggplot(sample, aes(x=liveness, y=popularity)) + geom_point()
+liveness
+
+loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point()
+loudness
+
+mode <- ggplot(sample, aes(x=mode, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
+              labels=c("Minor", "Major"))
+mode
+
+speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point()
+speechiness
+
+tempo <- ggplot(sample, aes(x=tempo, y=popularity)) + geom_point()
+tempo
+
+avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point()
+avg_art_pop
+
+# columns not included = artists, id, name, release_date
 ```
 
 
