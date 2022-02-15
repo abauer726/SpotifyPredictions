@@ -22,7 +22,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 View(music)
 
@@ -84,13 +84,13 @@ duration
 energy <- ggplot(sample, aes(x=energy, y=popularity)) + geom_point()
 energy
 
-explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1, labels=c("Clean", "Explicit"))
+explicit <- ggplot(sample, aes(x=explicit)) + geom_bar() + scale_x_continuous(breaks = c(0,1), labels=c("0" = "Clean", "1" = "Explicit"))
 explicit
 
 instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point()
 instrumentalness
 
-key <- ggplot(sample, aes(x=key, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:11,
+key <- ggplot(sample, aes(x=key)) + geom_bar() + scale_x_continuous(breaks=0:11,
               labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
 key
 
@@ -100,7 +100,7 @@ liveness
 loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point()
 loudness
 
-mode <- ggplot(sample, aes(x=mode, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
+mode <- ggplot(sample, aes(x=mode)) + geom_bar() + scale_x_continuous(breaks=0:1,
               labels=c("Minor", "Major"))
 mode
 
