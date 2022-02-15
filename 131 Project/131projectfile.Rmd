@@ -53,7 +53,7 @@ View(sample2)
 You can also embed plots, for example:
 
 ```{r pressure, echo=T}
-# making some visualizations
+# some EDA plots  
 energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
 energy
 
@@ -72,23 +72,6 @@ explicit
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-```{r}
-# split training and testing data\
-
-#set seed
-set.seed(123)
-# Sample 700 observations as training data 
-trainsample = sort(sample(nrow(music), nrow(music)*.7))
-# define dat.train as the 700 observstions 
-train = music[trainsample,]
-# The rest as test data
-test = music[-trainsample,]
-
-```
-
 
 ```{r}
 # creating a new numeric variable for specific artist average popularity
@@ -97,8 +80,29 @@ artist_pop_table
 
 full_merge <- merge(x = music, y = artist_pop_table, by.x = c("artists"), by.y = c("Group.1"), all.x = TRUE)
 
-View(full_merge)
+full_data <- rename(full_merge, avg_art_pop = x)
+
+View(full_data)
 ```
 
+```{r}
+# EDA plots to decide what predictors we should put in our recipe
 
+```
 
+```{r}
+# split training and testing data
+
+#set seed
+set.seed(123)
+# Sample 700 observations as training data 
+trainsample = sort(sample(nrow(full_data), nrow(full_data)*.7))
+# define dat.train as the 700 observstions 
+train = full_data[trainsample,]
+# The rest as test data
+test = full_data[-trainsample,]
+```
+
+```{r}
+# make recipe 
+```
