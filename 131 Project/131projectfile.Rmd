@@ -54,6 +54,8 @@ You can also embed plots, for example:
 
 ```{r pressure, echo=T}
 # some EDA plots  
+valence <- ggplot(sample )
+
 energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
 energy
 
@@ -70,6 +72,8 @@ explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='ide
               labels=c("Clean", "Explicit"))
 explicit
 
+
+
 ```
 
 
@@ -85,10 +89,30 @@ full_data <- rename(full_merge, avg_art_pop = x)
 View(full_data)
 ```
 
-```{r}
-# EDA plots to decide what predictors we should put in our recipe
+```{r pressure, echo=T}
+# some EDA plots  
+valence <- ggplot(sample )
+
+energy <- ggplot(sample,aes(x=energy,y=popularity))+geom_point()
+energy
+
+liveness <- ggplot(sample,aes(x=liveness, y=popularity))+geom_point()
+liveness
+
+danceability <- ggplot(sample, aes(x=danceability, y=popularity))+geom_point()
+danceability
+
+key <- ggplot(sample, aes(x=key, y = popularity))+geom_bar(stat='identity')
+key
+
+explicit <- ggplot(sample, aes(x=explicit, y = popularity)) + geom_bar(stat='identity') + scale_x_discrete(breaks=0:1,
+              labels=c("Clean", "Explicit"))
+explicit
+
+
 
 ```
+
 
 ```{r}
 # split training and testing data
