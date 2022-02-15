@@ -58,9 +58,9 @@ View(full_data)
 ```
 
 ```{r}
-set.seed((123))
+set.seed((666))
 # sample data to use for exploratory graphics
-sample <- full_data[sample(nrow(full_data), 100), ]
+sample <- full_data[sample(nrow(full_data), 200), ]
 View(sample)
 ```
 
