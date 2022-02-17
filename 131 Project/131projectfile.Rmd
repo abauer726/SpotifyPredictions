@@ -6,6 +6,7 @@ output: html_document
 ```{r, echo=FALSE}
 library(spotifyr)
 library(tidyverse)
+library(tidymodels)
 library(knitr)
 library(lubridate)
 library(httpuv)
@@ -13,6 +14,12 @@ library(cluster)
 library(factoextra)
 library(data.table)
 library(dplyr)
+library(ggplot2)
+library("ggpubr")
+theme_set(
+  theme_bw() +
+    theme(legend.position = "top")
+  )
 ```
 
 ## R Markdown
@@ -116,6 +123,27 @@ avg_art_pop
 # columns not included = artists, id, name, release_date
 ```
 
+```{r}
+figure <- ggarrange(tempo, speechiness, explicit,
+                    ncol = 2, nrow = 2)
+figure
+
+
+```
+
+```{r}
+full_data$popularity <- as.numeric(full_data$popularity)
+full_data$year <- as.numeric(full_data$year)
+full_data$duration_ms <- as.numeric(full_data$duration_ms)
+
+
+full_data2 = full_data %>% 
+  mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
+  mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
+
+delete <- c("artists", "id", "key", "name", "release_date")
+full_data <- full_data[!(names(full_data) %in% delete)]
+```
 
 ```{r}
 # split training and testing data
@@ -130,6 +158,53 @@ train = full_data[trainsample,]
 test = full_data[-trainsample,]
 ```
 
+
+```{r}
+Ytrain <- train$popularity # from lab 5
+Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytest <- test$popularity
+Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+do.chunk <- function(chunkid, folddef, Xdat, Ydat){
+  train = (folddef!= chunkid)
+  
+  Xtr = Xdat[train,]
+  Ytr = Ydat[train]
+  
+  Xval = Xdat[!train,]
+  Yval = Ydat[!train]
+  
+  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, ...)
+  predYvl = knn(train = Ytr, test = Xval, cl = Ytr, ...)
+  
+  data.frame(fold = chunkid,
+             train.error = mean(predYtr != Ytr),
+             val.error = mean(predYval != Yval))
+}
+```
+
+```{r}
+nfold = 10 
+
+set.seed(100)
+
+folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
+folds
+
+```
+
+```{r}
+# this is the other guys method of getting cross validation
+folds2 <- vfold_cv(train, v=10, repeats = 5)
+```
+
 ```{r}
 # make recipe 
+
+recipe <- recipe(
+  popularity ~ ., data = train) %>%
+  step_dummy(mode, explicit, one_hot = TRUE) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
 ```
