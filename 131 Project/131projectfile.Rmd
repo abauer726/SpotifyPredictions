@@ -29,7 +29,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 View(music)
 
@@ -132,6 +132,7 @@ figure
 ```
 
 ```{r}
+# modifying our full data to leave out the variables we don't want
 full_data$popularity <- as.numeric(full_data$popularity)
 full_data$year <- as.numeric(full_data$year)
 full_data$duration_ms <- as.numeric(full_data$duration_ms)
@@ -185,6 +186,7 @@ do.chunk <- function(chunkid, folddef, Xdat, Ydat){
 ```
 
 ```{r}
+# this is cross validation from the lab - not going to use
 nfold = 10 
 
 set.seed(100)
@@ -207,4 +209,6 @@ recipe <- recipe(
   step_dummy(mode, explicit, one_hot = TRUE) %>%
   step_center(all_predictors()) %>%
   step_scale(all_predictors())
+
+recipe
 ```
