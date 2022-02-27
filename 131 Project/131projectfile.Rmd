@@ -212,3 +212,41 @@ recipe <- recipe(
 
 recipe
 ```
+
+```{r}
+# BART Implementation
+set.seed (1)
+bartfit <- gbart(Xtrain , Ytrain , x.test = Xtest)
+```
+
+```{r}
+Yhat.bart <- bartfit$yhat.test.mean
+mean ((Ytest - Yhat.bart)^2) # test error
+```
+
+```{r}
+# How many times each variable appeared in the collection of trees
+ord <- order(bartfit$varcount.mean , decreasing = T)
+bartfit$varcount.mean[ord]
+```
+
+```{r}
+# This doesn't work
+bart_workflow <- workflow() %>% 
+  add_model(bartfit) %>% 
+  add_recipe(recipe)
+```
+
+```{r}
+# Test error was quite high for BART, checking if boosting is any better....
+set.seed (1)
+boost.music <- gbm(popularity ~ ., data = train,
+  distribution = "gaussian", n.trees = 1000,
+  interaction.depth = 4)
+```
+
+```{r}
+yhat.boost <- predict(boost.music ,
+  newdata = train, n.trees = 1000)
+mean ((yhat.boost - Ytest)^2)
+```
