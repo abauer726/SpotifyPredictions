@@ -15,6 +15,9 @@ library(factoextra)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(BART)
+library(gbm)
+library(kknn)
 library("ggpubr")
 theme_set(
   theme_bw() +
@@ -29,7 +32,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 View(music)
 
@@ -198,7 +201,7 @@ folds
 
 ```{r}
 # this is the other guys method of getting cross validation
-folds2 <- vfold_cv(train, v=10, repeats = 5)
+train_folds <- vfold_cv(train, v=10, repeats = 5)
 ```
 
 ```{r}
@@ -211,6 +214,43 @@ recipe <- recipe(
   step_scale(all_predictors())
 
 recipe
+```
+
+```{r}
+# save progress thus far
+# /Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv
+save(train_folds, recipe, train, file = "/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/model_setup.rda")
+```
+
+```{r}
+# beginning of KNN model
+knn_model <- 
+  nearest_neighbor(
+    neighbors = tune(),
+    mode = "regression") %>% 
+  set_engine("kknn")
+
+knn_workflow <- workflow() %>% 
+  add_model(knn_model) %>% 
+  add_recipe(recipe)
+```
+
+```{r}
+# set-up tuning grid ----
+knn_params <- parameters(knn_model)
+
+# define grid
+knn_grid <- grid_regular(knn_params, levels = 2)
+
+# tune and fit repeated cross fold validation
+knn_tune <- knn_workflow %>% 
+  tune_grid(
+    # what will it fit the workflow to
+    resamples = train_folds, 
+    # how does it complete the models in those workflows
+    grid = knn_grid)
+
+save(knn_tune, knn_workflow, file = "/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/knn_tune.rda")
 ```
 
 ```{r}
