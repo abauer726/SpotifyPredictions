@@ -34,7 +34,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 
 # New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
@@ -71,80 +71,87 @@ set.seed((666))
 sample <- full_data[sample(nrow(full_data), 200), ]
 ```
 
-```{r pressure, echo=T}
-# some EDA plots to decide which predictor to add into our recipe
-valence <- ggplot(sample, aes(x=valence, y=popularity)) + geom_point()
-valence
-
-year <- ggplot(sample, aes(x=year, y = popularity)) + geom_point()
-year
-
-acousticness <- ggplot(sample, aes(x=acousticness, y=popularity)) + geom_point()
-acousticness
-
-danceability <- ggplot(sample, aes(x=danceability, y=popularity)) + geom_point()
-danceability
-
-duration <- ggplot(sample, aes(x=duration_ms, y=popularity)) + geom_point()
-duration
-
-energy <- ggplot(sample, aes(x=energy, y=popularity)) + geom_point()
-energy
-
-explicit <- ggplot(sample, aes(x=explicit)) + geom_bar() + scale_x_continuous(breaks = c(0,1), labels=c("0" = "Clean", "1" = "Explicit"))
-explicit
-
-instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point()
-instrumentalness
-
-key <- ggplot(sample, aes(x=key)) + geom_bar() + scale_x_continuous(breaks=0:11,
-              labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
-key
-
-liveness <- ggplot(sample, aes(x=liveness, y=popularity)) + geom_point()
-liveness
-
-loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point()
-loudness
-
-mode <- ggplot(sample, aes(x=mode)) + geom_bar() + scale_x_continuous(breaks=0:1,
-              labels=c("Minor", "Major"))
-mode
-
-speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point()
-speechiness
-
-tempo <- ggplot(sample, aes(x=tempo, y=popularity)) + geom_point()
-tempo
-
-avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point()
-avg_art_pop
-
-# columns not included = artists, id, name, release_date
-```
 
 ```{r}
-figure <- ggarrange(tempo, speechiness, explicit,
-                    ncol = 2, nrow = 2)
+# some EDA plots
+
+valence <- ggplot(sample, aes(x=valence, y=popularity)) + geom_point(color = "seagreen1") + geom_smooth(se = FALSE, color = "black")
+
+year <- ggplot(sample, aes(x=year, y = popularity)) + geom_point(color = "dodgerblue2") + geom_smooth(se = FALSE, color = "black") 
+
+acousticness <- ggplot(sample, aes(x=acousticness, y=popularity)) + geom_point(col = "mediumpurple1") 
+
+danceability <- ggplot(sample, aes(x=danceability, y=popularity)) + geom_point(col = "lightpink") + geom_smooth(se = FALSE, color = "black")
+
+duration <- ggplot(sample, aes(x=duration_ms, y=popularity)) + geom_point(col = "sienna1") 
+
+energy <- ggplot(sample, aes(x=energy, y=popularity)) + geom_point(col = "firebrick3") + geom_smooth(se = FALSE, color = "black")
+
+explicit <- ggplot(sample, aes(x=explicit)) + geom_bar(fill = "darkseagreen") + scale_x_continuous(breaks = c(0,1), labels=c("0" = "Clean", "1" = "Explicit"))
+
+instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point(col = "goldenrod1") 
+
+key <- ggplot(sample, aes(x=key)) + geom_bar(fill = "darkslategray3") + scale_x_continuous(breaks=0:11,
+              labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
+
+liveness <- ggplot(sample, aes(x=liveness, y=popularity)) + geom_point(col = "deeppink1") 
+
+loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point(col = "khaki1") + geom_smooth(se = FALSE, color = "black")
+
+mode <- ggplot(sample, aes(x=mode)) + geom_bar(fill = "plum") + scale_x_continuous(breaks=0:1,
+              labels=c("Minor", "Major"))
+
+speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point(col = "green4") + geom_smooth(se = FALSE, color = "black")
+
+tempo <- ggplot(sample, aes(x=tempo, y=popularity)) + geom_point(col = "springgreen") 
+
+avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point(col = "deepskyblue") + geom_smooth(se = FALSE, color = "black")
+
+# variables not included as plots = artists, id, name, release_date
+```
+
+```{r, fig.width = 12, fig.height = 17}
+# making a figure to display all of our EDA plots 
+figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
 figure
 
-
 ```
 
 ```{r}
-# modifying our full data to leave out the variables we don't want
+# making some of the int variables into numeric
 full_data$popularity <- as.numeric(full_data$popularity)
 full_data$year <- as.numeric(full_data$year)
 full_data$duration_ms <- as.numeric(full_data$duration_ms)
 
-
+# mutating dummy variables 
 full_data2 = full_data %>% 
   mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
   mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
 
+# modifying our full data to leave out the variables we don't want
 delete <- c("artists", "id", "key", "name", "release_date")
 full_data <- full_data[!(names(full_data) %in% delete)]
 ```
+
+```{r}
+# correlation matrix and heatmap
+# library(corrplot)
+corr_mat <- cor(full_data)
+corr_mat[, 12]
+corrplot(corr_mat, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
+```
+Our two predictors with the strongest correlation to popularity are avg_art_pop and year. This leads us to believe that they will be influential and important to include in our model building. 
+
+```{r}
+# adding a density histogram for our outcome variable popularity
+hist <- ggplot(full_data) + 
+  ggtitle("Density Histogram for Outcome Varible") + # include title
+  geom_histogram(aes(popularity, y = after_stat(density)), binwidth = 5, fill = "cyan", color = "grey")  # add histogram w density
+x <- seq(0, 100, length.out = 100)
+df <- with(full_data, data.frame(x=x, y = dnorm(x, mean(popularity), sd(popularity))))
+hist + geom_line(data = df, aes(x = x, y = y), color = "red")
+```
+
 
 ```{r}
 # split training and testing data
@@ -161,28 +168,28 @@ test = full_data[-trainsample,]
 
 
 ```{r}
-Ytrain <- train %>% select(popularity) %>% scale(center = TRUE, scale = TRUE)# from lab 5
+Ytrain <- train$popularity %>% scale(center = TRUE, scale = TRUE)# from lab 5
 Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-Ytest <- test$popularity
+Ytest <- test$popularity %>% scale(center = TRUE, scale = TRUE)
 Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-do.chunk <- function(chunkid, folddef, Xdat, Ydat){
-  train = (folddef!= chunkid)
-  
-  Xtr = Xdat[train,]
-  Ytr = Ydat[train]
-  
-  Xval = Xdat[!train,]
-  Yval = Ydat[!train]
-  
-  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, ...)
-  predYvl = knn(train = Ytr, test = Xval, cl = Ytr, ...)
-  
-  data.frame(fold = chunkid,
-             train.error = mean(predYtr != Ytr),
-             val.error = mean(predYval != Yval))
-}
+# do.chunk <- function(chunkid, folddef, Xdat, Ydat){
+#   train = (folddef!= chunkid)
+#   
+#   Xtr = Xdat[train,]
+#   Ytr = Ydat[train]
+#   
+#   Xval = Xdat[!train,]
+#   Yval = Ydat[!train]
+#   
+#   predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, ...)
+#   predYvl = knn(train = Ytr, test = Xval, cl = Ytr, ...)
+#   
+#   data.frame(fold = chunkid,
+#              train.error = mean(predYtr != Ytr),
+#              val.error = mean(predYval != Yval))
+# }
 ```
 
 ```{r}
@@ -222,46 +229,20 @@ library(tidyverse)
 library(class)
 library(FNN)
 
-# train knn regressor  and make predictions on training set using k=2
-pred.Ytrain = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain)
+# train knn regressor and make predictions on training set using k=2
+pred.Ytrain = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain, k = 3)
 head(pred.Ytrain)
 # get training MSE
 mean((pred.Ytrain$pred - Ytrain)^2)
+# need to tune and cross validate
 
-# now make predictions on test set
-pred.Ytest = knn.reg(train = Xtrain, test = Xtest, y = Ytrain, k = 2)
+# now make predictions on test set (just to have predict code)
+Ytrain <- as.data.frame(Ytrain)
+pred.Ytest = knn.reg(train = Xtrain, test = Xtest, y = Ytrain, k = 3)
 head((pred.Ytest$pred - Ytest)^2)
 mean((pred.Ytest$pred - Ytest)^2)
 ```
 
-```{r}
-## homeboy's KNN code
-knn_model <- 
-  nearest_neighbor(
-    neighbors = tune(),
-    mode = "regression") %>% 
-  set_engine("kknn")
-
-knn_workflow <- workflow() %>% 
-  add_model(knn_model) %>% 
-  add_recipe(recipe)
-
-# set-up tuning grid ----
-knn_params <- parameters(knn_model)
-
-# define grid
-knn_grid <- grid_regular(knn_params, levels = 2)
-
-# tune and fit repeated cross fold validation
-knn_tune <- knn_workflow %>% 
-  tune_grid(
-    # what will it fit the workflow to
-    resamples = train_folds, 
-    # how does it complete the models in those workflows
-    grid = knn_grid)
-
-#save(knn_tune, knn_workflow, file = "/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/knn_tune.rda")
-```
 
 ```{r}
 ## trying elastic net code
@@ -288,14 +269,16 @@ elastic_model <- train(popularity ~ ., data = cbind(Xtrain, Ytrain),
                        tuneLength = 25,
                        trControl = control)
 elastic_model
+# need to tune and cross-validate model
 ```
 
 ```{r}
-# elastic model prediction on test data
+# elastic model prediction on test data (to have prediction code)
 elastic.pred <- predict(elastic_model, Xtest)
 elastic.pred
 # plot
 plot(elastic_model, main = "Elastic Net Regression")
+# lasso and ridge account for multi-collinearity, and elastic net is a combination of the two, so no need to investigate collinearity 
 ```
 
 ```{r}
