@@ -36,8 +36,6 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
-View(music)
-
 
 # New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
 # anna path name: /Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv
@@ -370,7 +368,7 @@ cv_mars <- train(
 ```{r}
 #display model with lowest test RMSE
 cv_mars$results %>%
-  filter(nprune= cv_mars$bestTune$nprune, degree = cv_mars$bestTune$degree)    
+  filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)    
 
 #display test RMSE by terms and degree
 ggplot(cv_mars)
