@@ -278,7 +278,7 @@ Ytrain %>% as.matrix()
 # model building on training sets
 control <- trainControl(method = "repeatedcv", 
                         number = 5, 
-                        repeats = 5, 
+                        repeats = 1, # 1 is less accurate but faster output
                         search = "random", 
                         verboseIter = TRUE)
 # training elastic net regression model
