@@ -1,6 +1,6 @@
 ---
 title: "131 Project Final Draft"
-author: "Alexis Navarra"
+author: "Anna Bauer, Grant Cai, Alexis Navarra"
 date: "3/1/2022"
 output: html_document
 ---
@@ -9,22 +9,65 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Introduction
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+For this machine learning project, we chose to explore Spotify music and what makes a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, our goal is to get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
+
+
+
+## Loading Data and Packages
+
+
+The first step of our machine learning project is simple: find a data set. Only it was not quite as simple as we anticipated. We went through a multitude of datasets to find a dataset that did not face us with problems such as too many missing values, too many observations, too little observations, and more. This process took much longer than we expected, as it comprised of downloading multiple files and attempting to upload them into git, only to discover that they didn't satisfy all of our data needs to explore our research question.
+
+Finally, we landed on a dataset from a Kaggle project called “Music Recommendation System using Spotify Dataset”, for which a codebook is attached in our zip files.  Below, we provide the list of general packages we used for this project (model-specific packages will be included in the model-building section), along with a preview of our dataset. 
+
 
 ```{r cars}
-summary(cars)
+# list all packages here
+library(tidyverse)
+library(knitr)
+library(lubridate)
+library(httpuv)
+library(cluster)
+library(factoextra)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+
+# load music.csv
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+
+# music.csv preview
+head(music)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Data Pre-processing
+
+
+In our initial look at this dataset, we wanted to identify any concerns early on so that we could either address them in our data pre-processing or look for a new dataset if the concerns were too large to overcome. The first problem in our data we looked for was missing values. After running a summary of the dataset, we found that there were no NA values, which we took as a good sign. We did notice that some of the 'release_date' values only contained the release year and not the exact release data of the song, but we figured this would not be a problem for our exploration. Additionally, we were thrown off by the number of zero values we saw in our initial look at the data, specifically in the columns 'explicit' and 'mode', but after further examination, we realized that they were coded dummy variables, so this was not a problem for our exploration. We also determined that we did not want to drop either of these variables from our data set, as we felt that if a song is explicit or not could be influential in how popular it becomes, and we felt that if a song was in a minor key or a major key could also be influential in how popular it becomes.
+
+
+Thus, we begin our data pre-processing by mutating our dummy variables 'explicit' and 'mode' into as.factor variables. If, for a given song, explicit = 0, we label that as "Clean", and if explicit = 1, we label that "Explicit". If, for a given song, mode = 0, we label that as "Minor", and if mode = 1, we label that as "Major". 
+
+
+```{r}
+# mutate our dummy variables into as.factor
+music = music %>% 
+  mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
+  mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+As our research question requires us to take a regression approach, we did have a concern of our data having too many categorical variables to fit into our regressive model with this data. To address this problem, we thought about what variables would be most important to our data exploration. One of the variables that we thought would be most important to include was 'artists', as we know that the artist of a song can have a direct impact on the song's popularity: a more popular artist is more likely to release a song that has higher popularity, and vice versa. With the 'artists' column being string-valued categorical observations, and with there being so many different artists in our data, we wanted to find a way to incorporate this variable into our data as a unique but quantitative variable. We outline that process in the next step of our data mutation below. 
+
+
+```{r}
+# manipulation of 'artist' variable
+```
+
+
+In addressing the multiple categorical variables we had left in our dataset, we then set out to determine if these variables would be important to our exploration and if they would be feasible to incorporate quantitatively into our data (similar to 'artists' above). 
