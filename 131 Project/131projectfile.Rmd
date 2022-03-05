@@ -170,36 +170,57 @@ test = full_data[-trainsample,]
 ```
 
 
+here I am starting over with the KNN using the LOOCV method:
 ```{r}
-Ytrain <- train$popularity %>% scale(center = TRUE, scale = TRUE)# from lab 5
-Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
-
-Ytest <- test$popularity %>% scale(center = TRUE, scale = TRUE)
-Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
-
-```
-
-
-```{r}
-## KNN regression work from lab 2
-# load libraries
 library(ISLR)
 library(tidyverse)
 library(class)
 library(FNN)
 
-# train knn regressor and make predictions on training set using k=2
-pred.Ytrain = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain, k = 3)
-head(pred.Ytrain)
-# get training MSE
-mean((pred.Ytrain$pred - Ytrain)^2)
-# need to tune and cross validate
 
-# now make predictions on test set (just to have predict code)
-Ytrain <- as.data.frame(Ytrain)
-pred.Ytest = knn.reg(train = Xtrain, test = Xtest, y = Ytrain, k = 3)
-head((pred.Ytest$pred - Ytest)^2)
-mean((pred.Ytest$pred - Ytest)^2)
+Ytrain <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytest <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+
+# Give possible number of nearest neighbours to be considered
+allK = 1:50
+# Set validation.error (a vector of length 50) to save validation errors in future # where validation.error[i] is the LOOCV validation when i-NN method is considered 
+validation.error = rep(NA, 50)
+# Set random seed to make the results reproducible
+set.seed(66)
+# For each number in allK, use LOOCV to find a validation error
+for (i in allK){
+# Loop through different number of neighbors
+# Predict on the left-out validation set 
+  pred.Yval = knn.cv(train=Xtrain, cl=Ytrain, k=i)
+  # Combine all validation errors 
+  validation.error[i] = mean(pred.Yval!=Ytrain)
+}
+# Validation error for 1-NN, 2-NN, ..., 50-NN
+plot(allK, validation.error, type = "l", xlab = "k")
+```
+
+
+```{r}
+# find best number of neighbors
+numneighbor = max(allK[validation.error == min(validation.error)]) 
+numneighbor # 48
+
+# Set random seed to make the results reproducible
+set.seed(67) # Best k used
+pred.YTest = knn(train=Xtrain, test=Xtest, cl=Ytrain, k=numneighbor) # cl iubstead i=f y
+
+# Confusion matrix
+conf.matrix = table(predicted=pred.YTest, true=Ytest)
+```
+
+
+```{r}
+# Test error rate
+1 - sum(diag(conf.matrix)/sum(conf.matrix))
 ```
 
 
