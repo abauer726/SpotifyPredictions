@@ -2,7 +2,9 @@
 title: "131 Project Final Draft"
 author: "Anna Bauer, Grant Cai, Alexis Navarra"
 date: "3/1/2022"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Introduction
 
 
-For this machine learning project, we chose to explore Spotify music and what makes a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, our goal is to get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
+For this machine learning project, we chose to explore Spotify music and what makes a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song, and as a consequence, how certain songs become more popular over others. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, our goal is to get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
 
 
 
@@ -35,9 +37,10 @@ library(factoextra)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -51,23 +54,169 @@ head(music)
 In our initial look at this dataset, we wanted to identify any concerns early on so that we could either address them in our data pre-processing or look for a new dataset if the concerns were too large to overcome. The first problem in our data we looked for was missing values. After running a summary of the dataset, we found that there were no NA values, which we took as a good sign. We did notice that some of the 'release_date' values only contained the release year and not the exact release data of the song, but we figured this would not be a problem for our exploration. Additionally, we were thrown off by the number of zero values we saw in our initial look at the data, specifically in the columns 'explicit' and 'mode', but after further examination, we realized that they were coded dummy variables, so this was not a problem for our exploration. We also determined that we did not want to drop either of these variables from our data set, as we felt that if a song is explicit or not could be influential in how popular it becomes, and we felt that if a song was in a minor key or a major key could also be influential in how popular it becomes.
 
 
-Thus, we begin our data pre-processing by mutating our dummy variables 'explicit' and 'mode' into as.factor variables. If, for a given song, explicit = 0, we label that as "Clean", and if explicit = 1, we label that "Explicit". If, for a given song, mode = 0, we label that as "Minor", and if mode = 1, we label that as "Major". 
+Thus, we begin our data pre-processing by mutating our dummy variables `explicit` and `mode` into as.factor variables. If, for a given song, explicit = 0, we label that as "Clean", and if explicit = 1, we label that "Explicit". If, for a given song, mode = 0, we label that as "Minor", and if mode = 1, we label that as "Major". 
 
 
 ```{r}
 # mutate our dummy variables into as.factor
-music = music %>% 
-  mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
-  mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
+# music = music %>% 
+#   mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
+#   mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
 ```
 
 
-As our research question requires us to take a regression approach, we did have a concern of our data having too many categorical variables to fit into our regressive model with this data. To address this problem, we thought about what variables would be most important to our data exploration. One of the variables that we thought would be most important to include was 'artists', as we know that the artist of a song can have a direct impact on the song's popularity: a more popular artist is more likely to release a song that has higher popularity, and vice versa. With the 'artists' column being string-valued categorical observations, and with there being so many different artists in our data, we wanted to find a way to incorporate this variable into our data as a unique but quantitative variable. We outline that process in the next step of our data mutation below. 
+As our research question requires us to take a regression approach, we did have a concern of our data having too many categorical variables to fit into our regressive model with this data. To address this problem, we thought about what variables would be most important to our data exploration. One of the variables that we thought would be most important to include was 'artists', as we know that the artist of a song can have a direct impact on the song's popularity: a more popular artist is more likely to release a song that has higher popularity, and vice versa. With the `artists` column being string-valued categorical observations, and with there being so many different artists in our data, we wanted to find a way to incorporate this variable into our data as a unique but quantitative variable. We decided that this would be the next step of our data mutation
+
+
+In order to keep the important variable of `artists` but make it quantitative, we decided to take the average song popularity by each artist in the data, and assign that variable of average artist popularity to each artist as a new variable in the dataset. Thus, our dataset would lose the column 'artists' containing each artist's name, and instead assign the variable `avg_art_pop` as the artist's average song popularity. This variable mutation process is outlined in the code chunk below.
 
 
 ```{r}
-# manipulation of 'artist' variable
+## manipulation of 'artist' variable
+
+# create a new table that aggregates the variables popularity and artists and finds the mean song popularity for each given artist
+artist_pop_table <- aggregate(music$popularity, list(music$artists), FUN = mean)
+
+# merges the table above into our music dataset by artist
+full_merge <- merge(x = music, y = artist_pop_table, by.x = c("artists"), by.y = c("Group.1"), all.x = TRUE)
+
+# rename full dataset and x column
+full_data <- rename(full_merge, avg_art_pop = x)
+
+# delete previous 'artist' column
+delete1 <- c("artists")
+full_data <- full_data[!(names(full_data) %in% delete1)]
+head(full_data)
 ```
 
 
-In addressing the multiple categorical variables we had left in our dataset, we then set out to determine if these variables would be important to our exploration and if they would be feasible to incorporate quantitatively into our data (similar to 'artists' above). 
+In addressing the multiple categorical variables we had left in our dataset, we then set out to determine if these variables would be important to our exploration and if they would be feasible to incorporate quantitatively into our data (similar to `artists` above). The qualitative variables that we had left in our dataset (that we decided would be irrational to dummy code) were `id`, `key`, `name`, `release_date`. We discussed each of these variables as a group, and decided that none of them would be very useful to try and fit quantitatively into our final data set, as we don't feel they will logically be important in predicting a given song's average popularity. In addition, analysis of the plots of some of these variables, such as `key`, demonstrate no real key being favored over others (see Exploratory Data Anallysis). Thus, we decided to drop these variables from our dataset, as shown below.
+
+
+```{r}
+# delete variables that will not be useful in our exploration
+delete2 <- c("id", "key", "name", "release_date")
+full_data <- full_data[!(names(full_data) %in% delete2)]
+```
+
+
+And finally, after making sure that all of our quantitative variables were numeric (shown in code chunk below), our data was ready for some exploratory data analysis. 
+
+
+```{r}
+# mutating leftover int variables to num type
+full_data$popularity <- as.numeric(full_data$popularity)
+full_data$year <- as.numeric(full_data$year)
+full_data$duration_ms <- as.numeric(full_data$duration_ms)
+```
+
+
+
+## Exploratory Data Analysis
+
+We first set out to explore the relationship between the various predictors and the response variable, popularity. We first subset the data to a more manageable size so that we could discern something from exploratory data analysis:
+```{r}
+set.seed((123))
+# sample data to use for exploratory graphics
+sample <- full_data[sample(nrow(full_data), 200), ]
+```
+
+COMMENT: TO KEY OR NOT TO KEY, DEBATE LATER IF TIME
+
+```{r, echo = FALSE}
+valence <- ggplot(sample, aes(x=valence, y=popularity)) + geom_point(color = "seagreen1") + geom_smooth(se = FALSE, color = "black")
+
+year <- ggplot(sample, aes(x=year, y = popularity)) + geom_point(color = "dodgerblue2") + geom_smooth(se = FALSE, color = "black") 
+
+acousticness <- ggplot(sample, aes(x=acousticness, y=popularity)) + geom_point(col = "mediumpurple1") 
+
+danceability <- ggplot(sample, aes(x=danceability, y=popularity)) + geom_point(col = "lightpink") + geom_smooth(se = FALSE, color = "black")
+
+duration <- ggplot(sample, aes(x=duration_ms, y=popularity)) + geom_point(col = "sienna1") 
+
+energy <- ggplot(sample, aes(x=energy, y=popularity)) + geom_point(col = "firebrick3") + geom_smooth(se = FALSE, color = "black")
+
+explicit <- ggplot(sample, aes(x=explicit)) + geom_bar(fill = "darkseagreen") + scale_x_continuous(breaks = c(0,1), labels=c("0" = "Clean", "1" = "Explicit"))
+
+instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point(col = "goldenrod1") 
+
+key <- ggplot(sample, aes(x=key)) + geom_bar(fill = "darkslategray3") + scale_x_continuous(breaks=0:11,
+            labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
+
+liveness <- ggplot(sample, aes(x=liveness, y=popularity)) + geom_point(col = "deeppink1") 
+
+loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point(col = "khaki1") + geom_smooth(se = FALSE, color = "black")
+
+mode <- ggplot(sample, aes(x=mode)) + geom_bar(fill = "plum") + scale_x_continuous(breaks=0:1,
+              labels=c("Minor", "Major"))
+
+speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point(col = "green4")
+
+tempo <- ggplot(sample, aes(x=tempo, y=popularity)) + geom_point(col = "springgreen") 
+
+avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point(col = "deepskyblue") + geom_smooth(se = FALSE, color = "black")
+```
+
+After defining our various plots, we accumulate them into a panel for better visibility:
+```{r, fig.width = 5, fig.height = 2}
+# library(patchwork)
+# valence + year + acousticness
+# danceability + duration + energy
+# explicit + instrumentalness +  key
+# liveness +  loudness + mode
+# speechiness +  tempo + avg_art_pop
+```
+
+```{r, fig.width = 12, fig.height = 17}
+library(ggpubr)
+figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, liveness, loudness, mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
+figure
+```
+
+
+There are several things that can be extrapolated from the panel of plots: mainly, many of the predictors, such as `valence`, `acousticness`, `danceability`, `duration_ms`, and `tempo` all have fairly weak correlations with `popularity`. We also learn that many songs in the dataset appear to be around 0 for `speechiness`, `liveness`, and `acousticness`. Regarding the categorical variables `explicit` and `mode`, there is a clear skew towards songs that are clean and in a major key.
+
+Looking specifically at the variables that have the strongest relationships with popularity, the two predictors `year` and `avg_art_pop` appear to have the strongest positive correlation with popularity. This makes intuitive sense. 
+
+There are several factors that could explain why year has a positive, near linear, relationship with popularity: for one, the population has increased from the 1960s until present day. With more people comes a more active listening base for artists to reach. In addition, the methods by which we obtain music have changed over the decades, starting off with things like records and record players, CDs, iTunes, and now with music streaming through platforms like Spotify.
+
+It makes intuitive sense why an artist's average popularity would be positively correlated with popularity. An artist with high brand value or recognition, such as Kendrick Lamar, Ariana Grande, or Justin Bieber are more likely to have new releases listened to by significantly more people as opposed to a more obscure or lesser known artist such as Gus Dapperton or Peach Pit. 
+
+This relationship is clearly shown through a correlation matrix and subsequent heatmap:
+```{r}
+# making some of the int variables into numeric
+full_data$popularity <- as.numeric(full_data$popularity)
+full_data$year <- as.numeric(full_data$year)
+full_data$duration_ms <- as.numeric(full_data$duration_ms)
+
+# mutating dummy variables 
+full_data2 = full_data %>% 
+  mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
+  mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
+
+# modifying our full data to leave out the variables we don't want
+delete <- c("artists", "id", "key", "name", "release_date")
+full_data <- full_data[!(names(full_data) %in% delete)]
+```
+
+```{r}
+# correlation matrix and heatmap
+library(corrplot)
+corr_mat <- cor(full_data)
+corr_mat[, 12]
+corrplot(corr_mat, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
+```
+
+The heatmap reinforces the notion that the two predictors with the strongest positive association with popularity are `year` and `avg_art_pop`. We thus have reason to believe that they will be influential and important to include in our model building.
+
+Finally, an analysis of the distribution of the response `popularity` allows us to see that it is pretty normally-distributed.
+
+```{r}
+# adding a density histogram for our outcome variable popularity
+hist <- ggplot(full_data) + 
+  ggtitle("Density Histogram for Outcome Varible") + # include title
+  geom_histogram(aes(popularity, y = after_stat(density)), binwidth = 5, fill = "cyan", color = "grey")  # add histogram w density
+x <- seq(0, 100, length.out = 100)
+df <- with(full_data, data.frame(x=x, y = dnorm(x, mean(popularity), sd(popularity))))
+hist + geom_line(data = df, aes(x = x, y = y), color = "red")
+```
