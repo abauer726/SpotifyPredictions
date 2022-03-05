@@ -215,13 +215,13 @@ pred.YTest = knn(train=Xtrain, test=Xtest, cl=Ytrain, k=numneighbor) # cl iubste
 
 # Confusion matrix
 conf.matrix = table(predicted=pred.YTest, true=Ytest)
-```
 
-
-```{r}
-# Test error rate
+# Test error rate 
 1 - sum(diag(conf.matrix)/sum(conf.matrix))
 ```
+
+
+
 
 
 ```{r}
