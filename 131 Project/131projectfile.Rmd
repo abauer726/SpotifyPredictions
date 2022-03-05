@@ -22,6 +22,7 @@ library(earth)
 library(caret)
 library(FNN)
 library("ggpubr")
+library(corrplot)
 theme_set(
   theme_bw() +
     theme(legend.position = "top")
@@ -34,7 +35,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 
 # New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
@@ -273,10 +274,54 @@ bartfit$varcount.mean[ord]
 ```
 
 ```{r}
-# This doesn't work
-bart_workflow <- workflow() %>% 
-  add_model(bartfit) %>% 
-  add_recipe(recipe)
+# do chunk k-fold cv with BART
+do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
+  # Get training index
+  train = (folddef!=chunkid)
+  # Get training set by the above index
+  Xtr = Xdat[train,]
+  # Get responses in training set
+  Ytr = Ydat[train]
+  # Get validation set
+  Xval = Xdat[!train,]
+  # Get responses in validation set
+  Yval = Ydat[!train]
+  # Predict training labels
+  predYtr = gbart(Xtr, Ytr, x.test = Xtr)
+  # Predict validation labels
+  predYval = gbart(Xtr , Ytr , x.test = Xval)
+  data.frame(fold = chunkid,
+    train.error = mean((Ytrain - predYtr$yhat.train.mean)^2), # Training error for each fold
+    val.error = mean((Ytest - predYval$yhat.test.mean)^2))  # Validation error for each fold
+}
+```
+
+```{r}
+# k-fold CV on BART
+nfold = 5
+# cut: divides all training observations into 3 intervals;
+# labels = FALSE instructs R to use integers to code different intervals
+set.seed(3)
+folds = cut(1:nrow(train), breaks=nfold, labels=FALSE) %>% sample()
+folds
+
+# Set error.folds (a vector) to save validation errors in future
+error.folds = NULL
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+# Loop through different chunk id
+for (i in seq(5)){
+  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrain, Ydat=Ytrain)
+  error.folds = rbind(error.folds, tmp)
+}
+head(error.folds)
+```
+
+```{r}
+pred.YTest = gbart(Xtrain, Ytrain, x.test = Xtest)
+# Test mse
+test_mse = mean((Ytest - pred.YTest$yhat.test.mean)^2)
+test_mse
 ```
 
 ```{r}
