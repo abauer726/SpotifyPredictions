@@ -29,7 +29,6 @@ Finally, we landed on a dataset from a Kaggle project called “Music Recommenda
 ```{r cars}
 # list all packages here
 library(tidyverse)
-library(tidymodels)
 library(knitr)
 library(lubridate)
 library(httpuv)
@@ -38,18 +37,10 @@ library(factoextra)
 library(data.table)
 library(dplyr)
 library(ggplot2)
-library(gbm)
-library(kknn)
-library(caret)
-library(FNN)
-library("ggpubr")
 library(corrplot)
-theme_set(
-  theme_bw() +
-    theme(legend.position = "top")
-  )
+
 # load music.csv
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -68,9 +59,9 @@ Thus, we begin our data pre-processing by mutating our dummy variables `explicit
 
 ```{r}
 # mutate our dummy variables into as.factor
-music = music %>% 
-  mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
-  mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
+# music = music %>% 
+#   mutate(explicit = as.factor(ifelse(explicit == 0, "Clean", "Explicit"))) %>% 
+#   mutate(mode = as.factor(ifelse(mode == 0, "Minor", "Major")))
 ```
 
 
@@ -117,8 +108,6 @@ And finally, after making sure that all of our quantitative variables were numer
 full_data$popularity <- as.numeric(full_data$popularity)
 full_data$year <- as.numeric(full_data$year)
 full_data$duration_ms <- as.numeric(full_data$duration_ms)
-
-summary(full_data)
 ```
 
 
@@ -132,9 +121,9 @@ set.seed((123))
 sample <- full_data[sample(nrow(full_data), 200), ]
 ```
 
-```{r, echo = FALSE}
-par(mfrow = c(3, 5))
+COMMENT: TO KEY OR NOT TO KEY, DEBATE LATER IF TIME
 
+```{r, echo = FALSE}
 valence <- ggplot(sample, aes(x=valence, y=popularity)) + geom_point(color = "seagreen1") + geom_smooth(se = FALSE, color = "black")
 
 year <- ggplot(sample, aes(x=year, y = popularity)) + geom_point(color = "dodgerblue2") + geom_smooth(se = FALSE, color = "black") 
@@ -161,7 +150,7 @@ loudness <- ggplot(sample, aes(x=loudness, y=popularity)) + geom_point(col = "kh
 mode <- ggplot(sample, aes(x=mode)) + geom_bar(fill = "plum") + scale_x_continuous(breaks=0:1,
               labels=c("Minor", "Major"))
 
-speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point(col = "green4") + geom_smooth(se = FALSE, color = "black")
+speechiness <- ggplot(sample, aes(x=speechiness, y=popularity)) + geom_point(col = "green4")
 
 tempo <- ggplot(sample, aes(x=tempo, y=popularity)) + geom_point(col = "springgreen") 
 
@@ -169,12 +158,21 @@ avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point(col
 ```
 
 After defining our various plots, we accumulate them into a panel for better visibility:
-```{r, fig.width = 12, fig.height = 17}
-# library("ggpubr")
-# making a figure to display all of our EDA plots 
-# figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, key, liveness, loudness, # mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
-# figure
+```{r, fig.width = 5, fig.height = 2}
+# library(patchwork)
+# valence + year + acousticness
+# danceability + duration + energy
+# explicit + instrumentalness +  key
+# liveness +  loudness + mode
+# speechiness +  tempo + avg_art_pop
 ```
+
+```{r, fig.width = 12, fig.height = 17}
+library(ggpubr)
+figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, liveness, loudness, mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
+figure
+```
+
 
 There are several things that can be extrapolated from the panel of plots: mainly, many of the predictors, such as `valence`, `acousticness`, `danceability`, `duration_ms`, and `tempo` all have fairly weak correlations with `popularity`. We also learn that many songs in the dataset appear to be around 0 for `speechiness`, `liveness`, and `acousticness`. Regarding the categorical variables `explicit` and `mode`, there is a clear skew towards songs that are clean and in a major key.
 
@@ -203,10 +201,9 @@ full_data <- full_data[!(names(full_data) %in% delete)]
 
 ```{r}
 # correlation matrix and heatmap
+library(corrplot)
 corr_mat <- cor(full_data)
 corr_mat[, 12]
-
-library(corrplot)
 corrplot(corr_mat, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
 ```
 
