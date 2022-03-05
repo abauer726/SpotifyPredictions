@@ -22,6 +22,7 @@ library(earth)
 library(caret)
 library(FNN)
 library("ggpubr")
+library(corrplot)
 theme_set(
   theme_bw() +
     theme(legend.position = "top")
@@ -34,7 +35,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 
 # New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
@@ -91,8 +92,10 @@ explicit <- ggplot(sample, aes(x=explicit)) + geom_bar(fill = "darkseagreen") + 
 
 instrumentalness <- ggplot(sample, aes(x=instrumentalness, y=popularity)) + geom_point(col = "goldenrod1") 
 
-key <- ggplot(sample, aes(x=key)) + geom_bar(fill = "darkslategray3") + scale_x_continuous(breaks=0:11,
-              labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"))
+# key <- ggplot(sample, aes(x=key)) + geom_bar(fill = "darkslategray3") + scale_x_continuous(breaks=0:11,
+#             labels=c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", #"B"))
+# key
+# not included because we are dropping this variable in the final dataset
 
 liveness <- ggplot(sample, aes(x=liveness, y=popularity)) + geom_point(col = "deeppink1") 
 
@@ -112,7 +115,7 @@ avg_art_pop <- ggplot(sample, aes(x=avg_art_pop, y=popularity)) + geom_point(col
 
 ```{r, fig.width = 12, fig.height = 17}
 # making a figure to display all of our EDA plots 
-figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
+figure <- ggarrange(valence, year, acousticness, danceability, duration, energy, explicit, instrumentalness, liveness, loudness, mode, speechiness, tempo, avg_art_pop, ncol = 3, nrow = 5)
 figure
 
 ```
@@ -174,52 +177,8 @@ Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 Ytest <- test$popularity %>% scale(center = TRUE, scale = TRUE)
 Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-# do.chunk <- function(chunkid, folddef, Xdat, Ydat){
-#   train = (folddef!= chunkid)
-#   
-#   Xtr = Xdat[train,]
-#   Ytr = Ydat[train]
-#   
-#   Xval = Xdat[!train,]
-#   Yval = Ydat[!train]
-#   
-#   predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, ...)
-#   predYvl = knn(train = Ytr, test = Xval, cl = Ytr, ...)
-#   
-#   data.frame(fold = chunkid,
-#              train.error = mean(predYtr != Ytr),
-#              val.error = mean(predYval != Yval))
-# }
 ```
 
-```{r}
-## this is cross validation from the lab - not going to use
-#nfold = 10 
-#set.seed(100)
-#folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
-#folds
-```
-
-```{r}
-# this is the other guys method of getting cross validation
-train_folds <- vfold_cv(train, v=10, repeats = 5)
-```
-
-```{r}
-# make recipe (from homeboy's code, don't think it's necessary anymore)
-recipe <- recipe(
-  popularity ~ ., data = train) %>%
-  step_dummy(mode, explicit, one_hot = TRUE) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors())
-recipe
-```
-
-```{r}
-# save progress thus far
-# /Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv
-save(train_folds, recipe, train, file = "/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/model_setup.rda")
-```
 
 ```{r}
 ## KNN regression work from lab 2
@@ -252,32 +211,48 @@ library(glmnet)
 library(ggplot2)
 library(caret)
 
-# X and Y training datasets as matrix
-Xtrain %>% as.matrix()
-Ytrain %>% as.matrix()
+# creating new train and test sets as matrices (from lab 5)
+el_X <- model.matrix(popularity ~ ., full_data)[, -1]
+el_Y <- full_data$popularity
+set.seed(123)
+eltrain = sort(sample(nrow(el_X), nrow(el_X)*.7)) # same as train sample above
+eltest = (-eltrain)
+x.eltrain = el_X[eltrain,]
+y.eltrain = el_Y[eltrain]
+x.eltest = el_X[eltest,]
+y.eltest = el_Y[eltest]
 
 # model building on training sets
 control <- trainControl(method = "repeatedcv", 
-                        number = 5, 
-                        repeats = 1, # 1 is less accurate but faster output
+                        number = 5, # 5 fold
+                        repeats = 5, # 5 repeats
                         search = "random", 
                         verboseIter = TRUE)
 # training elastic net regression model
-elastic_model <- train(popularity ~ ., data = cbind(Xtrain, Ytrain),
+elastic_model <- train(x = x.eltrain, y = y.eltrain,
                        method = "glmnet",
                        preProcess = c("center", "scale"),
-                       tuneLength = 25,
-                       trControl = control)
-elastic_model
-# need to tune and cross-validate model
+                       tuneLength = 25, # tuning the model
+                       trControl = control) # our cross-validation defined above
+elastic_model 
+# RMSE was used to select the optimal model using the smallest value.
+
+# plot
+plot(elastic_model, main = "Elastic Net Regression")
+
+# print out values from best tuned model
+best_elastic <- elastic_model$results %>%
+  filter(alpha == elastic_model$bestTune$alpha, lambda == elastic_model$bestTune$lambda)
+best_elastic
 ```
 
 ```{r}
 # elastic model prediction on test data (to have prediction code)
-elastic.pred <- predict(elastic_model, Xtest)
-elastic.pred
-# plot
-plot(elastic_model, main = "Elastic Net Regression")
+elastic.pred <- predict(elastic_model, x.eltest)
+
+# evaluate mse on the test data
+elastic_mse <- mean((elastic.pred - y.eltest)^2)
+elastic_mse
 # lasso and ridge account for multi-collinearity, and elastic net is a combination of the two, so no need to investigate collinearity 
 ```
 
@@ -299,10 +274,54 @@ bartfit$varcount.mean[ord]
 ```
 
 ```{r}
-# This doesn't work
-bart_workflow <- workflow() %>% 
-  add_model(bartfit) %>% 
-  add_recipe(recipe)
+# do chunk k-fold cv with BART
+do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
+  # Get training index
+  train = (folddef!=chunkid)
+  # Get training set by the above index
+  Xtr = Xdat[train,]
+  # Get responses in training set
+  Ytr = Ydat[train]
+  # Get validation set
+  Xval = Xdat[!train,]
+  # Get responses in validation set
+  Yval = Ydat[!train]
+  # Predict training labels
+  predYtr = gbart(Xtr, Ytr, x.test = Xtr)
+  # Predict validation labels
+  predYval = gbart(Xtr , Ytr , x.test = Xval)
+  data.frame(fold = chunkid,
+    train.error = mean((Ytrain - predYtr$yhat.train.mean)^2), # Training error for each fold
+    val.error = mean((Ytest - predYval$yhat.test.mean)^2))  # Validation error for each fold
+}
+```
+
+```{r}
+# k-fold CV on BART
+nfold = 5
+# cut: divides all training observations into 3 intervals;
+# labels = FALSE instructs R to use integers to code different intervals
+set.seed(3)
+folds = cut(1:nrow(train), breaks=nfold, labels=FALSE) %>% sample()
+folds
+
+# Set error.folds (a vector) to save validation errors in future
+error.folds = NULL
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+# Loop through different chunk id
+for (i in seq(5)){
+  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrain, Ydat=Ytrain)
+  error.folds = rbind(error.folds, tmp)
+}
+head(error.folds)
+```
+
+```{r}
+pred.YTest = gbart(Xtrain, Ytrain, x.test = Xtest)
+# Test mse
+test_mse = mean((Ytest - pred.YTest$yhat.test.mean)^2)
+test_mse
 ```
 
 ```{r}
