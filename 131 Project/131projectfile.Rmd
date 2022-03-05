@@ -35,11 +35,8 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
-
-# New research question: can we predict if a song will be a hit based on its attributes? Response variable: song.hotttnesss 
-# anna path name: /Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/data_w_genres.csv
 ```
 
 ```{r}
@@ -169,6 +166,119 @@ train = full_data[trainsample,]
 test = full_data[-trainsample,]
 ```
 
+test adding kfold:
+```{r}
+library(ISLR)
+library(tidyverse)
+library(class)
+library(FNN)
+
+
+do.chunk <- function(chunkid, folddef, Xdat, Ydat){
+  train = (folddef!= chunkid)
+
+  Xtr = Xdat[train,]
+  Ytr = Ydat[train]
+
+  Xval = Xdat[!train,]
+  Yval = Ydat[!train]
+  
+  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr)
+  predYvl = knn(train = Xtr, test = Xval, cl = Ytr)
+
+  data.frame(fold = chunkid,
+             train.error = mean(predYtr != Ytr),
+             val.error = mean(predYvl != Yval))
+}
+
+
+```
+
+
+```{r}
+
+# this is cross validation from the lab - not going to use
+nfold = 10
+set.seed(100)
+folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
+folds
+```
+
+
+```{r}
+error.folds = NULL
+# Give possible number of nearest neighbours to be considered
+allK = 1:50
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+
+
+
+
+Ytrainknn <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestknn <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+
+Xtrainknn = unlist(Xtrainknn)
+Ytrainknn = unlist(Ytrainknn)
+# Loop through different number of neighbors
+for (k in allK){
+# Loop through different chunk id 
+  for (j in seq(3)){
+    tmp = do.chunk(chunkid=j, folddef=folds, Xdat=Xtrainknn,
+                   Ydat=Ytrainknn)
+    tmp$neighbors = k # Record the last number of neighbor
+    error.folds = rbind(error.folds, tmp) # combine results }
+  }
+}
+
+head(error.folds, 10)
+
+
+```
+```{r}
+# Transform the format of error.folds for further convenience
+errors = melt(error.folds, id.vars=c('fold', 'neighbors'), value.name='error')
+# Choose the number of neighbors which minimizes validation error
+val.error.means = errors %>%
+# Select all rows of validation errors 
+  filter(variable=='val.error') %>%
+# Group the selected data frame by neighbors 
+  group_by(neighbors, variable) %>%
+# Calculate CV error rate for each k 
+  summarise_each(funs(mean), error) %>%
+# Remove existing group
+  ungroup() %>%
+  filter(error==min(error))
+# Best number of neighbors
+# if there is a tie, pick larger number of neighbors for simpler model 
+numneighbor = max(val.error.means$neighbors)
+numneighbor
+```
+
+
+```{r}
+## KNN regression work from lab 2
+
+# train knn regressor and make predictions on training set using k=2
+pred.Ytrainknn = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain, k = numneighbor)
+head(pred.Ytrainknn)
+# get training MSE
+mean((pred.Ytrainknn$pred - Ytrain)^2)
+# need to tune and cross validate
+
+# now make predictions on test set (just to have predict code)
+Ytrain <- as.data.frame(Ytrainknn)
+pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
+head((pred.Ytestknn$pred - Ytest)^2)
+mean((pred.Ytestknn$pred - Ytest)^2)
+```
+end adding kfold
+
+
 
 here I am starting over with the KNN using the LOOCV method:
 ```{r}
@@ -178,12 +288,16 @@ library(class)
 library(FNN)
 
 
-Ytrain <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
-Xtrain <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+Ytrainknn <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-Ytest <- test$popularity %>% scale(center = TRUE, scale = TRUE)
-Xtest <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+Ytestknn <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
+
+# X and Y training datasets as matrix
+Xtrainknn %>% as.matrix()
+Ytrainknn %>% as.matrix()
 
 # Give possible number of nearest neighbours to be considered
 allK = 1:50
@@ -192,17 +306,17 @@ validation.error = rep(NA, 50)
 # Set random seed to make the results reproducible
 set.seed(66)
 # For each number in allK, use LOOCV to find a validation error
+
 for (i in allK){
 # Loop through different number of neighbors
 # Predict on the left-out validation set 
-  pred.Yval = knn.cv(train=Xtrain, cl=Ytrain, k=i)
+  pred.Yval = knn.cv(train = Xtrainknn, cl=Ytrainknn, k=i)
   # Combine all validation errors 
-  validation.error[i] = mean(pred.Yval!=Ytrain)
+  validation.error[i] = mean(pred.Yval!=Ytrainknn)
 }
 # Validation error for 1-NN, 2-NN, ..., 50-NN
 plot(allK, validation.error, type = "l", xlab = "k")
 ```
-
 
 ```{r}
 # find best number of neighbors
@@ -211,15 +325,18 @@ numneighbor # 48
 
 # Set random seed to make the results reproducible
 set.seed(67) # Best k used
-pred.YTest = knn(train=Xtrain, test=Xtest, cl=Ytrain, k=numneighbor) # cl iubstead i=f y
+pred.Ytestknn = knn(train=Xtrainknn, test=Xtestknn, cl=Ytrainknn, k=numneighbor) # cl iubstead i=f y
 
 # Confusion matrix
-conf.matrix = table(predicted=pred.YTest, true=Ytest)
+conf.matrix = table(predicted=pred.YTestknn, true=Ytestknn)
 
 # Test error rate 
 1 - sum(diag(conf.matrix)/sum(conf.matrix))
 ```
 
+```{r}
+mean((pred.Ytestknn$pred - Ytestknn)^2)
+```
 
 
 
@@ -279,6 +396,12 @@ elastic_mse
 
 ```{r}
 # BART Implementation
+Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
 set.seed (1)
 bartfit <- gbart(Xtrain , Ytrain , x.test = Xtest)
 ```
@@ -312,8 +435,8 @@ do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
   # Predict validation labels
   predYval = gbart(Xtr , Ytr , x.test = Xval)
   data.frame(fold = chunkid,
-    train.error = mean((Ytrain - predYtr$yhat.train.mean)^2), # Training error for each fold
-    val.error = mean((Ytest - predYval$yhat.test.mean)^2))  # Validation error for each fold
+    train.error = mean((Ytrainbart - predYtr$yhat.train.mean)^2), # Training error for each fold
+    val.error = mean((Ytestbart - predYval$yhat.test.mean)^2))  # Validation error for each fold
 }
 ```
 
@@ -332,16 +455,16 @@ error.folds = NULL
 set.seed(888)
 # Loop through different chunk id
 for (i in seq(5)){
-  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrain, Ydat=Ytrain)
+  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrainbart, Ydat=Ytrainbart)
   error.folds = rbind(error.folds, tmp)
 }
 head(error.folds)
 ```
 
 ```{r}
-pred.YTest = gbart(Xtrain, Ytrain, x.test = Xtest)
+pred.YTest = gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
 # Test mse
-test_mse = mean((Ytest - pred.YTest$yhat.test.mean)^2)
+test_mse = mean((Ytestbart - pred.YTest$yhat.test.mean)^2)
 test_mse
 ```
 
@@ -356,7 +479,7 @@ boost.music <- gbm(popularity ~ ., data = train,
 ```{r}
 yhat.boost <- predict(boost.music ,
   newdata = train, n.trees = 1000)
-mean ((yhat.boost - Ytest)^2)
+mean ((yhat.boost - Ytestbart)^2)
 ```
 
 
