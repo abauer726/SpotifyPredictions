@@ -220,3 +220,112 @@ x <- seq(0, 100, length.out = 100)
 df <- with(full_data, data.frame(x=x, y = dnorm(x, mean(popularity), sd(popularity))))
 hist + geom_line(data = df, aes(x = x, y = y), color = "red")
 ```
+
+
+# Model Fitting
+
+Now that we have explored our data visually, we can begin to form our models. We looked the characteristics of our data, such as the number of observations, type of data (qualitative vs quantitative), etcetera, and found that an elastic net model, a Bayesian additive regression trees (BART) model, a multivariate adaptive regression splines (MARS) model, and a k-nearest neighbors (KNN) model would suit our research question and data well. We will explore the reasons why we chose each model later in this section. 
+
+### Splitting our data
+Since we have 120,750 observations (songs) in total, we can safely split our dataset into train and test sets. This way we can use the training data to fit our model and save the test data to evaluate how well our model predicts the data (test MSE). We chose to use 70% of the data for training and 30% of the data for testing. To implement this, we set the seed for reproductability, took a random sample of 70% of the dataset, and used that sample to create a training set. The rest of the values were used for the testing set. Below is an illustration of how the elastic net uses both the lasso and ridge techniques. 
+
+
+
+```{r}
+# split training and testing data
+#set seed
+set.seed(123)
+# Sample 70% of observations as training data 
+trainsample = sort(sample(nrow(full_data), nrow(full_data)*.7))
+# define dat.train as the 70% of observaions
+train = full_data[trainsample,]
+# The rest as test data
+test = full_data[-trainsample,]
+```
+
+
+## K-NN (add later when finalized)
+
+
+
+## Elastic Net Model Fitting
+
+Our next model is the elastic net, a combination of the ridge and lasso techniques. The elastic net method is a regularized linear regression that combines L1 and L2 penalty functions from the lasso and ridge techniques. Thus, the elastic net performs variable selection and regularization simultaneously. We found the elastic net to be more ideal than the ridge and lasso techniques on their own because it uses both methods and learns from them.
+
+The idea of the elastic net is to minimize the residual sum of squares and add a penalty term:
+
+$$\sum\limits_{i=1}^n (y_i - \beta_0 - \sum\limits_{j=1}^p \beta_j x_{ij})^2 + \lambda[(1 - \alpha)\ ||\beta||_2^2/2 + \alpha\ ||\beta||_1]$$
+where $||\beta||_1$ takes the form of L1 (L1 norm):
+$$||\beta||_1 = \sum\limits_{j=1}^p |\beta_j|$$
+
+and $||\beta||_2$ takes the form of L2 (Euclidean norm):
+$$||\beta||_2 = \sqrt{\sum\limits_{j=1}^p \beta_j^2}$$
+Here is a visual explanation of the elastic net: 
+![elastic net implementation.](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/elasticnetimage.png)
+
+This model was a good choice for our data because it's a regression model, which fits our mostly quantitative variables, and it improves on the lasso and ridge techniques. Additionally, the lasso and ridge methods account for collinearity, so that eliminates our need to investigate collinearity between predictors. 
+```{r}
+# load packages
+library(dplyr) # data manipulation
+library(glmnet) # elastic net 
+library(ggplot2) # for visualization
+library(caret) # classofication and regression training
+
+# creating new train and test sets as matrices (from lab 5)
+el_X <- model.matrix(popularity ~ ., full_data)[, -1]
+el_Y <- full_data$popularity
+set.seed(123)
+eltrain = sort(sample(nrow(el_X), nrow(el_X)*.7)) # same as train sample above
+eltest = (-eltrain)
+x.eltrain = el_X[eltrain,]
+y.eltrain = el_Y[eltrain]
+x.eltest = el_X[eltest,]
+y.eltest = el_Y[eltest]
+
+# model building on training sets
+control <- trainControl(method = "repeatedcv", 
+                        number = 5, # 5 fold
+                        repeats = 5, # 5 repeats
+                        search = "random", 
+                        verboseIter = TRUE)
+# training elastic net regression model
+elastic_model <- train(x = x.eltrain, y = y.eltrain,
+                       method = "glmnet",
+                       preProcess = c("center", "scale"),
+                       tuneLength = 25, # tuning the model
+                       trControl = control) # our cross-validation defined above
+elastic_model 
+# RMSE was used to select the optimal model using the smallest value.
+
+# plot
+plot(elastic_model, main = "Elastic Net Regression")
+
+# print out values from best tuned model
+best_elastic <- elastic_model$results %>%
+  filter(alpha == elastic_model$bestTune$alpha, lambda == elastic_model$bestTune$lambda)
+best_elastic
+```
+
+
+
+Insert inrepretation of this result ^
+
+
+Now that we have our model, we want to make a prediction on our test data. To do this, we use the predict() function to get the test mean square error. Later we will compare the test MSEs of different functions to decide which model is optimal for our data. 
+```{r}
+# elastic model prediction on test data (to have prediction code)
+elastic.pred <- predict(elastic_model, x.eltest)
+
+# evaluate mse on the test data
+elastic_mse <- mean((elastic.pred - y.eltest)^2)
+elastic_mse
+```
+
+
+
+
+
+
+
+
+
