@@ -273,8 +273,8 @@ mean((pred.Ytrainknn$pred - Ytrain)^2)
 # now make predictions on test set (just to have predict code)
 Ytrain <- as.data.frame(Ytrainknn)
 pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
-head((pred.Ytestknn$pred - Ytest)^2)
-mean((pred.Ytestknn$pred - Ytest)^2)
+head((pred.Ytestknn$pred - Ytestknn)^2)
+mean((pred.Ytestknn$pred - Ytestknn)^2)
 ```
 end adding kfold
 
