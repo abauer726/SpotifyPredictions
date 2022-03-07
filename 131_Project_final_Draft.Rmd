@@ -40,7 +40,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -224,7 +224,7 @@ hist + geom_line(data = df, aes(x = x, y = y), color = "red")
 
 # Model Fitting
 
-Now that we have explored our data visually, we can begin to form our models. We looked the characteristics of our data, such as the number of observations, type of data (qualitative vs quantitative), etcetera, and found that an elastic net model, a Bayesian additive regression trees (BART) model, a multivariate adaptive regression splines (MARS) model, and a k-nearest neighbors (KNN) model would suit our research question and data well. We will explore the reasons why we chose each model later in this section. 
+Now that we have explored our data visually, we can begin to form our models. We looked the characteristics of our data, such as the number of observations, type of data (qualitative vs quantitative), etcetera, and found that an elastic net model, a Bayesian additive regression trees (BART) model, a multivariate adaptive regression splines (MARS) model, and a k-nearest neighbors (KNN) model would suit our research question and data well. Each of these algorithms fit our regression-based question well. We will explore the reasons why we chose each model later in this section. 
 
 ### Splitting our data
 Since we have 120,750 observations (songs) in total, we can safely split our dataset into train and test sets. This way we can use the training data to fit our model and save the test data to evaluate how well our model predicts the data (test MSE). We chose to use 70% of the data for training and 30% of the data for testing. To implement this, we set the seed for reproductability, took a random sample of 70% of the dataset, and used that sample to create a training set. The rest of the values were used for the testing set. Below is an illustration of how the elastic net uses both the lasso and ridge techniques. 
@@ -244,7 +244,117 @@ test = full_data[-trainsample,]
 ```
 
 
-## K-NN (add later when finalized)
+## K-NN
+
+The k-nearest neighbors regression algorithm is a non-parametric method that takes observations from different neighbors to approximate the association between the predictors and the outcome (in our case song popularity). KNN is a good fit for our research question because the function can have many function forms other than linear, which is what we are looking for. 
+
+The downside about that KNN algorithm is that it can only be used when the variances of variables are similar. By using this model, we are making the assumption that the variances of each predictor of probability are similar enough. Further, KNN makes it difficult to "predict into the future", which, alongside the curse of dimensionality, makes it not very interpretable. 
+
+For the KNN model, our tuning parameter is k. 
+
+To implement our model, we first load the required packages and use the do.chunk() function for k-fold cross-validation. We use folddef to specify an index to map all observations in the design matrix and all observations into the response into a set of k folds. chunkid is used to set the fold used as the validation set. The do.chunk function as a whole trains the model using all folds but the chunkid fold, and computes the validation error for that last fold. The resulting dataframe consists of all possible values of the folds with their test error rate. 
+```{r}
+library(ISLR)
+library(tidyverse)
+library(class)
+library(FNN)
+
+
+do.chunk <- function(chunkid, folddef, Xdat, Ydat){
+  train = (folddef!= chunkid)
+
+  Xtr = Xdat[train,]
+  Ytr = Ydat[train]
+
+  Xval = Xdat[!train,]
+  Yval = Ydat[!train]
+  
+  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr)
+  predYvl = knn(train = Xtr, test = Xval, cl = Ytr)
+
+  data.frame(fold = chunkid,
+             train.error = mean(predYtr != Ytr),
+             val.error = mean(predYvl != Yval))
+}
+```
+
+
+Next, we specify that we would like 10 folds and divide the data into ten intervals. 
+```{r}
+nfold = 10
+set.seed(100)
+folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
+```
+
+Next, we decide to have 50 neighbors considered, and loop through all 50 of the neighbor for each different chunk id. Below is a dataframe of the error folds and their respective training error, validation error, and neighbors. 
+```{r}
+error.folds = NULL
+# Give possible number of nearest neighbours to be considered
+allK = 1:50
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+
+
+Ytrainknn <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestknn <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+
+Xtrainknn = unlist(Xtrainknn) # unlist to convert from list to vector
+Ytrainknn = unlist(Ytrainknn)
+# Loop through different number of neighbors
+for (k in allK){
+# Loop through different chunk id 
+  for (j in seq(3)){
+    tmp = do.chunk(chunkid=j, folddef=folds, Xdat=Xtrainknn,
+                   Ydat=Ytrainknn)
+    tmp$neighbors = k # Record the last number of neighbor
+    error.folds = rbind(error.folds, tmp) # combine results }
+  }
+}
+
+head(error.folds, 10)
+```
+
+Next, we want to decide the optimal k for kNN, using error.folds. We want the type (training or test) of error and the corresponding value for each fold and each neighbor. We can do this using the melt() function.
+```{r}
+# Transform the format of error.folds for further convenience
+errors = melt(error.folds, id.vars=c('fold', 'neighbors'), value.name='error')
+# Choose the number of neighbors which minimizes validation error
+val.error.means = errors %>%
+# Select all rows of validation errors 
+  filter(variable=='val.error') %>%
+# Group the selected data frame by neighbors 
+  group_by(neighbors, variable) %>%
+# Calculate CV error rate for each k 
+  summarise_each(funs(mean), error) %>%
+# Remove existing group
+  ungroup() %>%
+  filter(error==min(error))
+# Best number of neighbors
+# if there is a tie, pick larger number of neighbors for simpler model 
+numneighbor = max(val.error.means$neighbors)
+numneighbor
+```
+Thus, we found that a [insert here]-NN classifier would be best. Now we can calculate the test MSE using the knn function. 
+
+```{r}
+# train knn regressor and make predictions on training set using k=20
+pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
+# head(pred.Ytrainknn)
+# get training MSE
+mean((pred.Ytrainknn$pred - Ytrainknn)^2)
+
+# now make predictions on test set (just to have predict code)
+Ytrain <- as.data.frame(Ytrainknn)
+pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
+head((pred.Ytestknn$pred - Ytestknn)^2)
+mean((pred.Ytestknn$pred - Ytestknn)^2)
+```
+Thus, we found or training MSE to be 0.3100 and our test MSE to be 0.3490 for this model. This is a considerably low MSE, and the training and test MSEs being so similar leads us to believe that the k-NN model properly prevented overfitting. 
+
 
 
 
@@ -308,7 +418,7 @@ best_elastic
 
 
 
-Insert inrepretation of this result ^
+Insert inrepretation of this result. The elastic net algorithm does tune and cross validate on its own, so there is no need for us to perform further cross validation or tuning. 
 
 
 Now that we have our model, we want to make a prediction on our test data. To do this, we use the predict() function to get the test mean square error. Later we will compare the test MSEs of different functions to decide which model is optimal for our data. 
@@ -323,9 +433,183 @@ elastic_mse
 
 
 
+## Bayesian Additive Regression Trees (BART)
+
+The BART method uses decision trees for regression, constructing each tree randomly, similar to bagging and random forest models. Each new tree is trying to capture "signal" that is not accounted for by the rest of the trees. In the BART model, K is the number of regression trees and B is the number of iterations that the BART will run through. 
+
+Below is a description of the algorithm we used to construct our BART model. 
+![from ISLR textbook](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/BARTalgorithm.png)
+
+First, we got our training and testing data and split them into Xtrain, Ytrain, Xtest, and Ytest for the BART model. Then we were able to use the gbart() function to fit a model using BART. 
+```{r}
+# BART Implementation
+Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+set.seed (1)
+bartfit <- gbart(Xtrain , Ytrain , x.test = Xtest)
+```
+
+Next, we found the test error for BART model:
+```{r}
+Yhat.bart <- bartfit$yhat.test.mean
+mean((Ytest - Yhat.bart)^2) # test error
+```
+
+Next, we found that each variable appeared [insert here] times in the collection of trees:
+```{r}
+# How many times each variable appeared in the collection of trees
+ord <- order(bartfit$varcount.mean , decreasing = T)
+bartfit$varcount.mean[ord]
+```
+
+Finally, we implemented k-fold cross validation with our BART model:
+```{r}
+# do chunk k-fold cv with BART
+do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
+  # Get training index
+  train = (folddef!=chunkid)
+  # Get training set by the above index
+  Xtr = Xdat[train,]
+  # Get responses in training set
+  Ytr = Ydat[train]
+  # Get validation set
+  Xval = Xdat[!train,]
+  # Get responses in validation set
+  Yval = Ydat[!train]
+  # Predict training labels
+  predYtr = gbart(Xtr, Ytr, x.test = Xtr)
+  # Predict validation labels
+  predYval = gbart(Xtr , Ytr , x.test = Xval)
+  data.frame(fold = chunkid,
+    train.error = mean((Ytrainbart - predYtr$yhat.train.mean)^2), # Training error for each fold
+    val.error = mean((Ytestbart - predYval$yhat.test.mean)^2))  # Validation error for each fold
+}
+```
+
+```{r}
+# k-fold CV on BART
+nfold = 5
+# cut: divides all training observations into 3 intervals;
+# labels = FALSE instructs R to use integers to code different intervals
+set.seed(3)
+folds = cut(1:nrow(train), breaks=nfold, labels=FALSE) %>% sample()
+folds
+
+# Set error.folds (a vector) to save validation errors in future
+error.folds = NULL
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+# Loop through different chunk id
+for (i in seq(5)){
+  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrainbart, Ydat=Ytrainbart)
+  error.folds = rbind(error.folds, tmp)
+}
+head(error.folds)
+```
+
+Finally, we were able to get the test MSE after we iterated through a 5-fold cross validation. 
+```{r}
+pred.YTest = gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
+# Test mse
+test_mse = mean((Ytestbart - pred.YTest$yhat.test.mean)^2)
+test_mse
+```
+
+Because the test error was quite high, we decided to check if boosting had a better prediction. To do this, we fit a boosting model. 
+```{r}
+# Test error was quite high for BART, checking if boosting is any better....
+set.seed (1)
+boost.music <- gbm(popularity ~ ., data = train,
+  distribution = "gaussian", n.trees = 1000,
+  interaction.depth = 4)
+```
+
+```{r}
+yhat.boost <- predict(boost.music ,
+  newdata = train, n.trees = 1000)
+mean ((yhat.boost - Ytestbart)^2)
+```
+As we can see [insert the results of the boosting].
+
+
+## Multivariate Additive Regression Splines (MARS)
+
+The final algorithm we implimented was the multivariate adaptive regression splines (MARS). The MARS model is an ensemble of piecewise linear functions that are joined together by hinge functions. This accounts for non-linearity between inputs and outputs. The MARS algorithm has two stages - a forward stage and a backward stage. The forward stage generates many pairs of functions as candidates for the basis of the model. The backward stage is considered the pruning stage - the model goes through all of the functions and deletes the functons that don't add further value to the model performance. 
+
+We chose to use the MARS algorithm because we can see that the relationship between popularity and our predictors is often non-linear. Additionally, we have many predictor variables and the MARS algorithm is capable of achieving good performance on a regression problem with many predictor variables. 
+
+In a nutshell, the MARS method works like this:
+1. Divide a given dataset into k pieces.
+2. Fit a regression model to each piece.
+3. Use k-fold cross-validation to choose a value for k. 
+
+Our first step was to create a tuning grid for pruning and set a seed for reproductability:
+```{r}
+library(earth) # library for fitting MARS models
+library(caret) # library for tuning the model parameters
+
+trainmars <- train # copy dataset for mars model
+
+#create a tuning grid
+hyper_grid <- expand.grid(degree = 1:3,
+                          nprune = seq(2, 50, length.out = 10) %>%
+                          floor())
+
+#make this example reproducible
+set.seed(123)
+```
+
+Next, we fit the model with k-fold cross validation:
+```{r}
+#fit MARS model using k-fold cross-validation
+cv_mars <- train(
+  x = subset(trainmars, select = -c(popularity)),
+  y = train$popularity,
+  method = "earth",
+  metric = "RMSE",
+  trControl = trainControl(method = "cv", number = 10),
+  tuneGrid = hyper_grid)
+```
+
+Finally, we used the MARS algorithm to find the model with the lowest test RMSE:
+```{r}
+#display model with lowest test RMSE
+cv_mars$results %>%
+  filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)    
+```
+We can see that the best model found by the MARS method was of degree 3 with 18 prunes. The R-squared was 0.6928, which is fairly strong correlation for this mode. The test root mean squared error was 8.6215.
+
+Below is a graph of the test RMSE by terms and degree - one can see that the third degree has the lowest RMSE and the number of terms appear to minimize RMSE at a value between 10 and 20 (hence why our value of 18 makes sense).
+```{r}
+#display test RMSE by terms and degree
+ggplot(cv_mars)
+```
+
+
+To compare this model to the other models we fit, we will convert RMSE to MSE:
+```{r}
+testmse_mars <- cv_mars$results$RMSE[18]^2
+testmse_mars
+```
+Thus, we have a test MSE value of 74.33276 from our model using multivariate adaptive regression splines. 
+
+
+# Comparing models
 
 
 
+# Sources
 
+ISLR (insert page(s)/sections later)
 
+Lab 4 Cross-Validation
 
+![elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
+
+![MARS model information](https://towardsdatascience.com/mars-multivariate-adaptive-regression-splines-how-to-improve-on-linear-regression-e1e7a63c5eae)
+
+![MARS code](https://www.statology.org/multivariate-adaptive-regression-splines-in-r/)
