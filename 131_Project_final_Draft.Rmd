@@ -441,7 +441,10 @@ Below is a description of the algorithm we used to construct our BART model.
 ![from ISLR textbook](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/BARTalgorithm.png)
 
 First, we got our training and testing data and split them into Xtrain, Ytrain, Xtest, and Ytest for the BART model. Then we were able to use the gbart() function to fit a model using BART. 
+
 ```{r}
+library(BART)
+
 # BART Implementation
 Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
 Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
