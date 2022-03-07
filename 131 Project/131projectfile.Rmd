@@ -265,10 +265,10 @@ numneighbor
 ## KNN regression work from lab 2
 
 # train knn regressor and make predictions on training set using k=2
-pred.Ytrainknn = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain, k = numneighbor)
+pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
 head(pred.Ytrainknn)
 # get training MSE
-mean((pred.Ytrainknn$pred - Ytrain)^2)
+mean((pred.Ytrainknn$pred - Ytrainknn)^2)
 # need to tune and cross validate
 
 # now make predictions on test set (just to have predict code)
