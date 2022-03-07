@@ -239,6 +239,7 @@ head(error.folds, 10)
 
 
 ```
+
 ```{r}
 # Transform the format of error.folds for further convenience
 errors = melt(error.folds, id.vars=c('fold', 'neighbors'), value.name='error')

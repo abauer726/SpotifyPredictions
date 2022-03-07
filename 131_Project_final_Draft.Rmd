@@ -40,7 +40,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -248,6 +248,7 @@ test = full_data[-trainsample,]
 
 
 
+
 ## Elastic Net Model Fitting
 
 Our next model is the elastic net, a combination of the ridge and lasso techniques. The elastic net method is a regularized linear regression that combines L1 and L2 penalty functions from the lasso and ridge techniques. Thus, the elastic net performs variable selection and regularization simultaneously. We found the elastic net to be more ideal than the ridge and lasso techniques on their own because it uses both methods and learns from them.
@@ -308,7 +309,7 @@ best_elastic
 
 
 
-Insert inrepretation of this result ^
+Insert inrepretation of this result ^ (include cross validation)
 
 
 Now that we have our model, we want to make a prediction on our test data. To do this, we use the predict() function to get the test mean square error. Later we will compare the test MSEs of different functions to decide which model is optimal for our data. 
@@ -323,9 +324,163 @@ elastic_mse
 
 
 
+## Bayesian Additive Regression Trees (BART)
+
+The BART method uses decision trees for regression, constructing each tree randomly, similar to bagging and random forest models. Each new tree is trying to capture "signal" that is not accounted for by the rest of the trees. In the BART model, K is the number of regression trees and B is the number of iterations that the BART will run through. 
+
+Below is a description of the algorithm we used to construct our BART model. 
+![from ISLR textbook](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/BARTalgorithm.png)
+
+First, we got our training and testing data and split them into Xtrain, Ytrain, Xtest, and Ytest for the BART model. Then we were able to use the gbart() function to fit a model using BART. 
+```{r}
+# BART Implementation
+Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+set.seed (1)
+bartfit <- gbart(Xtrain , Ytrain , x.test = Xtest)
+```
+
+Next, we found the test error for BART model:
+```{r}
+Yhat.bart <- bartfit$yhat.test.mean
+mean((Ytest - Yhat.bart)^2) # test error
+```
+
+Next, we found that each variable appeared [insert here] times in the collection of trees:
+```{r}
+# How many times each variable appeared in the collection of trees
+ord <- order(bartfit$varcount.mean , decreasing = T)
+bartfit$varcount.mean[ord]
+```
+
+Finally, we implemented k-fold cross validation with our BART model:
+```{r}
+# do chunk k-fold cv with BART
+do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
+  # Get training index
+  train = (folddef!=chunkid)
+  # Get training set by the above index
+  Xtr = Xdat[train,]
+  # Get responses in training set
+  Ytr = Ydat[train]
+  # Get validation set
+  Xval = Xdat[!train,]
+  # Get responses in validation set
+  Yval = Ydat[!train]
+  # Predict training labels
+  predYtr = gbart(Xtr, Ytr, x.test = Xtr)
+  # Predict validation labels
+  predYval = gbart(Xtr , Ytr , x.test = Xval)
+  data.frame(fold = chunkid,
+    train.error = mean((Ytrainbart - predYtr$yhat.train.mean)^2), # Training error for each fold
+    val.error = mean((Ytestbart - predYval$yhat.test.mean)^2))  # Validation error for each fold
+}
+```
+
+```{r}
+# k-fold CV on BART
+nfold = 5
+# cut: divides all training observations into 3 intervals;
+# labels = FALSE instructs R to use integers to code different intervals
+set.seed(3)
+folds = cut(1:nrow(train), breaks=nfold, labels=FALSE) %>% sample()
+folds
+
+# Set error.folds (a vector) to save validation errors in future
+error.folds = NULL
+# Set seed since do.chunk() contains a random component induced by knn()
+set.seed(888)
+# Loop through different chunk id
+for (i in seq(5)){
+  tmp = do.chunk.bart(chunkid=i, folddef=folds, Xdat=Xtrainbart, Ydat=Ytrainbart)
+  error.folds = rbind(error.folds, tmp)
+}
+head(error.folds)
+```
+
+Finally, we were able to get the test MSE after we iterated through a 5-fold cross validation. 
+```{r}
+pred.YTest = gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
+# Test mse
+test_mse = mean((Ytestbart - pred.YTest$yhat.test.mean)^2)
+test_mse
+```
+
+Because the test error was quite high, we decided to check if boosting had a better prediction. To do this, we fit a boosting model. 
+```{r}
+# Test error was quite high for BART, checking if boosting is any better....
+set.seed (1)
+boost.music <- gbm(popularity ~ ., data = train,
+  distribution = "gaussian", n.trees = 1000,
+  interaction.depth = 4)
+```
+
+```{r}
+yhat.boost <- predict(boost.music ,
+  newdata = train, n.trees = 1000)
+mean ((yhat.boost - Ytestbart)^2)
+```
+As we can see [insert the results of the boosting].
+
+
+## Multivariate Additive Regression Splines (MARS)
+
+The final algorithm we implimented was the multivariate adaptive regression splines (MARS). The MARS model is an ensemble of piecewise linear functions that are joined together by hinge functions. This accounts for non-linearity between inputs and outputs. The MARS algorithm has two stages - a forward stage and a backward stage. The forward stage generates many pairs of functions as candidates for the basis of the model. The backward stage is considered the pruning stage - the model goes through all of the functions and deletes the functons that don't add further value to the model performance. 
+
+We chose to use the MARS algorithm because there is high likelihood that our 
+
+```{r}
+
+trainmars <- train
+# implementation of MARS method
+# divide dataset into k pieces
+# fit a regression model to each piece
+# use k-fold cross validation to choose a value for k
+# using train
+
+
+#create a tuning grid
+hyper_grid <- expand.grid(degree = 1:3,
+                          nprune = seq(2, 50, length.out = 10) %>%
+                          floor())
+
+#make this example reproducible
+set.seed(1)
+
+#fit MARS model using k-fold cross-validation
+cv_mars <- train(
+  x = subset(trainmars, select = -c(popularity)),
+  y = train$popularity,
+  method = "earth",
+  metric = "RMSE",
+  trControl = trainControl(method = "cv", number = 10),
+  tuneGrid = hyper_grid)
+```
+
+```{r}
+#display model with lowest test RMSE
+cv_mars$results %>%
+  filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)    
+
+#display test RMSE by terms and degree
+ggplot(cv_mars)
+
+```
 
 
 
 
 
+
+# Sources
+
+ISLR (insert page(s)/sections later)
+
+![elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
+
+![MARS model information](https://towardsdatascience.com/mars-multivariate-adaptive-regression-splines-how-to-improve-on-linear-regression-e1e7a63c5eae)
 
