@@ -39,6 +39,7 @@ music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotif
 
 ```
 
+
 ```{r}
 # randomly subset syntax, with 100 points (couldnt run this due to the file not loading)
 
@@ -239,6 +240,7 @@ head(error.folds, 10)
 
 
 ```
+
 ```{r}
 # Transform the format of error.folds for further convenience
 errors = melt(error.folds, id.vars=c('fold', 'neighbors'), value.name='error')
@@ -264,10 +266,10 @@ numneighbor
 ## KNN regression work from lab 2
 
 # train knn regressor and make predictions on training set using k=2
-pred.Ytrainknn = knn.reg(train = Xtrain, test = Xtrain, y = Ytrain, k = numneighbor)
+pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
 head(pred.Ytrainknn)
 # get training MSE
-mean((pred.Ytrainknn$pred - Ytrain)^2)
+mean((pred.Ytrainknn$pred - Ytrainknn)^2)
 # need to tune and cross validate
 
 # now make predictions on test set (just to have predict code)
