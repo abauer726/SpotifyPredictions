@@ -405,12 +405,20 @@ Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
 Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
 set.seed (1)
-bartfit <- gbart(Xtrain , Ytrain , x.test = Xtest)
+bartfit <- gbart(Xtrainbart , Ytrainbart , x.test = Xtestbart)
 ```
 
 ```{r}
 Yhat.bart <- bartfit$yhat.test.mean
 mean ((Ytest - Yhat.bart)^2) # test error
+```
+
+```{r}
+pred = predict(bartfit, Xtestbart)
+```
+
+```{r}
+plot(apply(pred, 2, mean), f(Xtestbart))
 ```
 
 ```{r}
