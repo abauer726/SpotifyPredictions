@@ -220,7 +220,7 @@ Finally, an analysis of the distribution of the response `popularity` allows us 
 ```{r}
 # adding a density histogram for our outcome variable popularity
 hist <- ggplot(full_data) + 
-  ggtitle("Density Histogram for Outcome Varible") + # include title
+  ggtitle("Density Histogram for Song Popularity (Outcome Variable)") + # include title
   geom_histogram(aes(popularity, y = after_stat(density)), binwidth = 5, fill = "cyan", color = "grey")  # add histogram w density
 x <- seq(0, 100, length.out = 100)
 df <- with(full_data, data.frame(x=x, y = dnorm(x, mean(popularity), sd(popularity))))
@@ -616,6 +616,17 @@ Thus, we have a test MSE value of 74.33276 from our model using multivariate ada
 
 
 # Conclusion
+
+Thus, we have answered our research question of, "Can we predict a song’s popularity based on its attributes?" by going through the entire machine learning exploration process. We started by tidying our data in preparation for a regression model and adding the variable, "artist popularity", which was the average popularity of all of an artists songs. The tidying process took longer than expected when we encountered dataset issues; some datasets were too large for Github, some datasets didn't have key variables such as "artist popularity", etcetera, and choosing the right one took a lot of trial and error. 
+
+Next, we plotted our variables of interest to identify key patterns. We made a scatterplot of every quantitative variable in our models and a bar plot of every categorical variable we had. This allowed us to get a glimpse of which predictors might be influential and make sure that we were aware of any patterns that might violate an assumption in our models. For this reason, we decided not to run a linear regression model because our data violated too many of the model assumptions! We also created a correlation matrix and a heatmap to see which predictors were most correlated with song popularity, and which predictors variated together (collinearity). Finally, we made a density histogram of song popularity and compared it to a normal curve - it was nearly a perfect normal distribution!
+
+Once we completed the exploratory data analysis, we were able to research the models that might best fit our data. We looked into aspects such as number of predictors, best prediction accuracy, model flexibility and interpretability, and other model specifications mentioned in lecture. Finally, we landed on the following algorithms: k-nearest neighbors, elastic net, Bayesian additive regression trees (BART), and multivariate adaptive regression splines (MARS). After fitting, tuning, and running cross-validation on each model, we found that the model with the lowest MSE was the BART. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. 
+
+To finish our project, we tuned and ran a prediction using the BART model to answer our research question. [insert results here]
+
+Toward the end of the project, we also realized that the "artist popularity" variable we created may violate a rule of prediction - if the variable includes the average popularity of all songs for that artist, this may include future values. For example, if an observation is Katy Perry's, "Spit", released in 2003, the "artist popularity" variable for that observation includes Katy Perry's future hits that haven't been released yet in its average. If we were to re-do this project, we could address this problem by trying to make avg_art_pop a variable that only relies on the observations that chronologically come before it. Another area we can improve on for our next project would be in our decision making regarding our research question and the data we use to answer it. Our approach in this project was a bit misguided; we were unsure of the topic we wanted to focus on for our project, so we started by looking at some general data sets and seeing what caught our eye. After some discussion, we decided on pursuing something within our shared interest of music, but we began looking for a dataset before we were certain about the research question we wanted to explore. We thought that we would be able to create our research question from a data set we decided on. As a result, we went through multiple datasets and multiple research questions before we were able to finally settle on the ones presented above. In hindsight, we feel that we would have been able to save time and labor by deciding on a topic and creating our research question before beginning our search for data.
+
 
 # Sources
 
