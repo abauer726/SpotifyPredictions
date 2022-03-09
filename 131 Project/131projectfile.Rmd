@@ -35,7 +35,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 ```
 
@@ -405,7 +405,7 @@ Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
 Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
 set.seed (1)
-bartfit <- gbart(Xtrainbart , Ytrainbart , x.test = Xtestbart)
+bartfit <- gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
 ```
 
 ```{r}
@@ -414,10 +414,12 @@ mean ((Ytest - Yhat.bart)^2) # test error
 ```
 
 ```{r}
-pred = predict(bartfit, Xtestbart)
+# try a prediction on the test set
+bart_pred = predict(bartfit, Xtestbart)
 ```
 
 ```{r}
+# plot prediction - grant added this code but it doesn't work
 plot(apply(pred, 2, mean), f(Xtestbart))
 ```
 
