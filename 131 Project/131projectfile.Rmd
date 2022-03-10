@@ -341,7 +341,43 @@ mean((pred.Ytestknn$pred - Ytestknn)^2)
 ```
 
 
+anna trying out bartmachine:
 
+```{r}
+install.packages("JVM")
+```
+
+```{r}
+# library(rJava)
+library(bartMachine)
+Y <- full_data$popularity
+bartdfX <- subset(train, select = -popularity)
+```
+
+```{r}
+##build BART regression model
+bart_machine_cv = bartMachineCV(bartdfX, Y)
+
+#information about cross-validated model
+summary(bart_machine_cv)
+```
+
+
+```{r}
+# from page 40 plot fitted vs actual model
+##build BART regre
+
+
+# generate plot
+plot_y_vs_yhat(bart_machine_cv)
+```
+predict:
+```{r}
+predict(bart_machine_cv, test, type = "prob", prob_rule_class = NULL, verbose = TRUE)
+```
+
+
+end bartmachine
 
 ```{r}
 ## trying elastic net code
