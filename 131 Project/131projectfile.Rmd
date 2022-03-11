@@ -35,7 +35,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 ```
 
@@ -341,44 +341,6 @@ mean((pred.Ytestknn$pred - Ytestknn)^2)
 ```
 
 
-anna trying out bartmachine:
-
-```{r}
-install.packages("JVM")
-```
-
-```{r}
-# library(rJava)
-library(bartMachine)
-Y <- full_data$popularity
-bartdfX <- subset(train, select = -popularity)
-```
-
-```{r}
-##build BART regression model
-bart_machine_cv = bartMachineCV(bartdfX, Y)
-
-#information about cross-validated model
-summary(bart_machine_cv)
-```
-
-
-```{r}
-# from page 40 plot fitted vs actual model
-##build BART regre
-
-
-# generate plot
-plot_y_vs_yhat(bart_machine_cv)
-```
-predict:
-```{r}
-predict(bart_machine_cv, test, type = "prob", prob_rule_class = NULL, verbose = TRUE)
-```
-
-
-end bartmachine
-
 ```{r}
 ## trying elastic net code
 # load packages
@@ -432,6 +394,8 @@ elastic_mse
 # lasso and ridge account for multi-collinearity, and elastic net is a combination of the two, so no need to investigate collinearity 
 ```
 
+
+disregard - non cross validated bart
 ```{r}
 # BART Implementation
 Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
@@ -446,7 +410,7 @@ bartfit <- gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
 
 ```{r}
 Yhat.bart <- bartfit$yhat.test.mean
-mean ((Ytest - Yhat.bart)^2) # test error
+mean((Ytest - Yhat.bart)^2) # test error
 ```
 
 ```{r}
@@ -455,14 +419,32 @@ bart_pred = predict(bartfit, Xtestbart)
 ```
 
 ```{r}
-# plot prediction - grant added this code but it doesn't work
-plot(apply(pred, 2, mean), f(Xtestbart))
+summary(as.double(bart_pred - bartfit$yhat.test))
 ```
+From the above result, we can see that the mean and median values are near zero, indicating that bart_pred (our prediction on the test set) and bartfit$yhat.test () are practically identical
+
+
 
 ```{r}
-# How many times each variable appeared in the collection of trees
-ord <- order(bartfit$varcount.mean , decreasing = T)
-bartfit$varcount.mean[ord]
+dim(Ytestbart)
+dim(bart_pred)
+```
+end disregard
+
+
+
+
+
+
+
+start cross validation version of bart
+```{r}
+# BART Implementation
+Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
+
+Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 ```
 
 ```{r}
@@ -481,7 +463,7 @@ do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
   # Predict training labels
   predYtr = gbart(Xtr, Ytr, x.test = Xtr)
   # Predict validation labels
-  predYval = gbart(Xtr , Ytr , x.test = Xval)
+  predYval <<- gbart(Xtr , Ytr , x.test = Xval)
   data.frame(fold = chunkid,
     train.error = mean((Ytrainbart - predYtr$yhat.train.mean)^2), # Training error for each fold
     val.error = mean((Ytestbart - predYval$yhat.test.mean)^2))  # Validation error for each fold
@@ -509,26 +491,40 @@ for (i in seq(5)){
 head(error.folds)
 ```
 
-```{r}
+```{r we dont need this right now}
 pred.YTest = gbart(Xtrainbart, Ytrainbart, x.test = Xtestbart)
 # Test mse
 test_mse = mean((Ytestbart - pred.YTest$yhat.test.mean)^2)
 test_mse
 ```
 
+
 ```{r}
-# Test error was quite high for BART, checking if boosting is any better....
-set.seed (1)
-boost.music <- gbm(popularity ~ ., data = train,
-  distribution = "gaussian", n.trees = 1000,
-  interaction.depth = 4)
+Yhat.bart <- bartfit$yhat.test.mean
+mean((Ytest - Yhat.bart)^2) # test error
 ```
 
 ```{r}
-yhat.boost <- predict(boost.music ,
-  newdata = train, n.trees = 1000)
-mean ((yhat.boost - Ytestbart)^2)
+bart_pred2 = predict(predYval, Xtestbart)
 ```
+
+```{r}
+summary(as.double(bart_pred - bartfit$yhat.test))
+```
+From the above result, we can see that the mean and median values are near zero, indicating that bart_pred (our prediction on the test set) and bartfit$yhat.test () are practically identical
+
+
+```{r}
+# How many times each variable appeared in the collection of trees
+ord <- order(bartfit$varcount.mean , decreasing = T)
+bartfit$varcount.mean[ord]
+```
+
+end cross validation version of bart 
+
+
+
+
 
 
 ```{r}
@@ -568,4 +564,3 @@ cv_mars$results %>%
 ggplot(cv_mars)
 
 ```
-
