@@ -1,0 +1,90 @@
+---
+title: "Knit Test"
+author: "Anna Bauer, Grant Cai and Alexis Navarra"
+date: "Winter 2022"
+output:
+  html_document: 
+    toc: true
+    toc_float: true
+    collapsed: false
+    theme: lumen
+    highlight: pygments
+    code_folding: show
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+
+We chose to explore Spotify music and the attributes that make a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song, and as a consequence, how certain songs become more popular over others. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, we decided to create specific goals - to get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
+
+
+Many of the current hits are actually created from machine learning algorithms. Whether they are enjoyable to listen to is another topic, however these machine-created hits successfully used algorithms for lyrics, beats, timing, and other factors to make these song popular. We were inspired by this topic in our research question, especially when wondering which factors in these algorithms had the most weight in the song creation. 
+
+
+```{r, message=FALSE, warning=FALSE}
+# list all packages here
+library(tidyverse)
+library(knitr)
+library(lubridate)
+library(httpuv)
+library(cluster)
+library(factoextra)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+
+# load music.csv
+music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+
+# music.csv preview
+head(music)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+## manipulation of 'artist' variable
+
+# create a new table that aggregates the variables popularity and artists and finds the mean song popularity for each given artist
+artist_pop_table <- aggregate(music$popularity, list(music$artists), FUN = mean)
+
+# merges the table above into our music dataset by artist
+full_merge <- merge(x = music, y = artist_pop_table, by.x = c("artists"), by.y = c("Group.1"), all.x = TRUE)
+
+# rename full dataset and x column
+full_data <- rename(full_merge, avg_art_pop = x)
+
+# delete previous 'artist' column
+delete1 <- c("artists")
+full_data <- full_data[!(names(full_data) %in% delete1)]
+head(full_data)
+```
+
+```{r}
+# delete variables that will not be useful in our exploration
+delete2 <- c("id", "key", "name", "release_date")
+full_data <- full_data[!(names(full_data) %in% delete2)]
+```
+
+
+
+```{r}
+# mutating leftover int variables to num type
+full_data$popularity <- as.numeric(full_data$popularity)
+full_data$year <- as.numeric(full_data$year)
+full_data$duration_ms <- as.numeric(full_data$duration_ms)
+```
+
+
+```{r}
+set.seed((123))
+# sample data to use for exploratory graphics
+sample <- full_data[sample(nrow(full_data), 200), ]
