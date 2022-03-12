@@ -330,8 +330,9 @@ $$||\beta||_1 = \sum\limits_{j=1}^p |\beta_j|$$
 
 and $||\beta||_2$ takes the form of L2 (Euclidean norm):
 $$||\beta||_2 = \sqrt{\sum\limits_{j=1}^p \beta_j^2}$$
-Here is a visual explanation of the elastic net: 
-![elastic net implementation.](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/elasticnetimage.png)
+```{r, out.width = "400px"}
+knitr::include_graphics("/Users/Grant/DoubleProjectGroup/131 Project/elasticnetimage.png")
+```
 
 This model was a good choice for our data because it is a regression model, which fits our mostly quantitative variables, and it improves on the lasso and ridge techniques. Additionally, the lasso and ridge methods account for collinearity, so that eliminated our need to investigate collinearity between predictors. 
 
@@ -400,7 +401,9 @@ This value is larger of a test MSE than the one we have calculated so far, thus 
 The BART method uses decision trees for regression, constructing each tree randomly, similar to bagging and random forest models. Each new tree is trying to capture a "signal" that is not accounted for by the rest of the trees. BART is related to both bagging and random forest, as well as boosting, in that each tree is constructed randomly and each tree tries to capture a signal not yet accounted for by the current model. In the BART model, K is the number of regression trees and B is the number of iterations that the BART will run through. Each tree in BART is perturbed to avoid local minima and achieve a more thorough exploration of the model space (ISLR Ch 8).
 
 Below is a description of the algorithm we used to construct our BART model. 
-![from ISLR textbook](/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/BARTalgorithm.png)
+```{r, out.width = "400px"}
+knitr::include_graphics("/Users/Grant/DoubleProjectGroup/131 Project/BARTalgorithm.png")
+```
 
 First, we got our training and testing data and split them into Xtrain, Ytrain, Xtest, and Ytest for the BART model.
 

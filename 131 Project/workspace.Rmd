@@ -40,7 +40,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -72,6 +72,13 @@ head(full_data)
 # delete variables that will not be useful in our exploration
 delete2 <- c("id", "key", "name", "release_date")
 full_data <- full_data[!(names(full_data) %in% delete2)]
+```
+
+Here is a visual explanation of the elastic net: 
+![elastic net implementation.](/Users/Grant/DoubleProjectGroup/131 Project/elasticnetimage.png)
+
+```{r, out.width = "400px"}
+knitr::include_graphics("/Users/Grant/DoubleProjectGroup/131 Project/elasticnetimage.png")
 ```
 
 
