@@ -43,7 +43,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/lexnavarra/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -540,9 +540,20 @@ Thus, we found a test MSE value of 74.33276 from our model using multivariate ad
 
 ### Comparing models
 
+We decided that choosing the model that with the lowest test MSE is indicative of the model that best fit the data. In that case, the models with the higher MSEs, such as MARS and elastic net, were ruled out. The models with the lowest test MSEs were k-nearest neighbors and BART, but with the former's test MSE of roughly 0.3 and the latter's of 1.7, k-nearest neighbors appeared to be the best of the models fitted.
+
 ### Prediction
 
+
+
 #### Performance of our Prediction
+
+```{r}
+# plot followed from https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html
+plot(Ytestknn, pred.Ytestknn$pred, xlab="y", ylab=expression(hat(y)))
+```
+
+If the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our knn prediction is decent.
 
 # Conclusion
 
@@ -552,7 +563,7 @@ Next, we plotted our variables of interest to identify key patterns. We made a s
 
 Once we completed the exploratory data analysis, we were able to research the models that might best fit our data. We looked into aspects such as number of predictors, best prediction accuracy, model flexibility and interpretability, and other model specifications mentioned in lecture. Finally, we landed on the following algorithms: k-nearest neighbors, elastic net, Bayesian additive regression trees (BART), and multivariate adaptive regression splines (MARS). After fitting, tuning, and running cross-validation on each model, we found that the model with the lowest MSE was the k-nearest neighbors.
 
-To finish our project, we tuned and ran a prediction using the KNN model to answer our research question. [insert results here]
+To finish our project, we tuned and ran a prediction using the KNN model to answer our research question. We observed that the prediction did a fairly good job at predicting popularity. [insert results here]
 
 Toward the end of the project, we also realized that the "artist popularity" variable we created may violate a rule of prediction - if the variable includes the average popularity of all songs for that artist, this may include future values. For example, if an observation is Katy Perry's, "Spit", released in 2003, the "artist popularity" variable for that observation includes Katy Perry's future hits that haven't been released yet in its average. If we were to re-do this project, we could address this problem by trying to make avg_art_pop a variable that only relies on the observations that chronologically come before it. Another area we can improve on for our next project would be in our decision making regarding our research question and the data we use to answer it. Our approach in this project was a bit misguided; we were unsure of the topic we wanted to focus on for our project, so we started by looking at some general data sets and seeing what caught our eye. After some discussion, we decided on pursuing something within our shared interest of music, but we began looking for a dataset before we were certain about the research question we wanted to explore. We thought that we would be able to create our research question from a data set we decided on. As a result, we went through multiple datasets and multiple research questions before we were able to finally settle on the ones presented above. In hindsight, we feel that we would have been able to save time and labor by deciding on a topic and creating our research question before beginning our search for data.
 
