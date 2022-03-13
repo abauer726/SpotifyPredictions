@@ -255,10 +255,10 @@ allK = 1:50
 # Set seed since do.chunk() contains a random component induced by knn()
 set.seed(888)
 
-Ytrainknn <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Ytrainknn <- train$popularity # from lab 5
 Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-Ytestknn <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Ytestknn <- test$popularity
 Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
 Xtrainknn = unlist(Xtrainknn) # unlist to convert from list to vector
@@ -307,13 +307,13 @@ As shown above, we found that a 50-NN classifier would be best. Finally, we were
 pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
 # head(pred.Ytrainknn)
 # get training MSE
-mean((pred.Ytrainknn$pred - Ytrainknn)^2)
+mean((pred.Ytrainknn$pred - Ytrainknn)^2) # 79.66631
 
 # now make predictions on test set (just to have predict code)
 Ytrain <- as.data.frame(Ytrainknn)
 pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
-head((pred.Ytestknn$pred - Ytestknn)^2)
-mean((pred.Ytestknn$pred - Ytestknn)^2)
+head((pred.Ytestknn$pred - Ytestknn)^2) # 186.0496 62.4100 197.1216 19.8916 26.2144 45.1584
+mean((pred.Ytestknn$pred - Ytestknn)^2) # 82.41085
 ```
 
 Thus, we found or training MSE to be 0.3100 and our test MSE to be 0.3490 for this model. This is a considerably low MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
@@ -411,10 +411,10 @@ First, we got our training and testing data and split them into Xtrain, Ytrain, 
 library(BART)
 
 # BART Implementation
-Ytrainbart <- train$popularity %>% scale(center = TRUE, scale = TRUE) # from lab 5
+Ytrainbart <- train$popularity # from lab 5
 Xtrainbart <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-Ytestbart <- test$popularity %>% scale(center = TRUE, scale = TRUE)
+Ytestbart <- test$popularity
 Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 ```
 
@@ -436,10 +436,10 @@ do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
   # Predict training labels
   predYtr = gbart(Xtr, Ytr, x.test = Xtr)
   # Predict validation labels
-  predYval <<- gbart(Xtr , Ytr , x.test = Xval)
+  predYval <<- gbart(Xtr, Ytr, x.test = Xval)
   data.frame(fold = chunkid,
-    train.error = mean((Ytrainbart - predYtr$yhat.train.mean)^2), # Training error for each fold
-    val.error = mean((Ytestbart - predYval$yhat.test.mean)^2))  # Validation error for each fold
+    train.error = mean((Ytrainbart - predYtr$yhat.train)^2), # Training error for each fold
+    val.error = mean((Ytestbart - predYval$yhat.test)^2))  # Validation error for each fold
 }
 ```
 
@@ -468,11 +468,11 @@ Finally, we were able to get the test MSE after we iterated through a 5-fold cro
 
 ```{r}
 # Test mse
-test_mse = mean((Ytestbart - predYval$yhat.test.mean)^2)
-test_mse
+test_mse = mean((Ytestbart - predYval$yhat.test)^2)
+test_mse #407.7647???
 ```
 
-A test MSE of 1.7 made BART a contender for our best model. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. 
+A test MSE of 407.7647 was very surprising and almost immediately disqualified BART as a contender. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. 
 
 ### Multivariate Additive Regression Splines (MARS)
 
@@ -556,7 +556,7 @@ We decided that choosing the model that with the lowest test MSE is indicative o
 plot(Ytestknn, pred.Ytestknn$pred, xlab="y", ylab=expression(hat(y)))
 ```
 
-If the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our knn prediction is decent.
+A good way to determine how well the model predictions performed in comparison to the test data is a plot of the predictions against the true values. In the plot, if the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our knn prediction is decent.
 
 # Conclusion
 
