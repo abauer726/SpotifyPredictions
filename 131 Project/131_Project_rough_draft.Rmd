@@ -472,7 +472,7 @@ test_mse = mean((Ytestbart - predYval$yhat.test)^2)
 test_mse #407.7647???
 ```
 
-A test MSE of 407.7647 was very surprising and almost immediately disqualified BART as a contender. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. 
+A test MSE of 407.7647 was very surprising and almost immediately disqualified BART as a contender. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. In addition, our train and test errors were fairly similar.
 
 ### Multivariate Additive Regression Splines (MARS)
 
