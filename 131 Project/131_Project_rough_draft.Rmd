@@ -246,12 +246,12 @@ set.seed(100)
 folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
 ```
 
-Next, we decided to have 50 neighbors considered, so we looped through all 50 of the neighbors for each different chunk id. Below is a dataframe of the error folds and their respective training error, validation error, and neighbors. 
+Next, we decided to have 100 neighbors considered, so we looped through all 100 of the neighbors for each different chunk id.
 
 ```{r}
 error.folds = NULL
 # Give possible number of nearest neighbours to be considered
-allK = 1:50
+allK = 1:100
 # Set seed since do.chunk() contains a random component induced by knn()
 set.seed(888)
 
@@ -261,8 +261,8 @@ Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE
 Ytestknn <- test$popularity
 Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
-Xtrainknn = unlist(Xtrainknn) # unlist to convert from list to vector
-Ytrainknn = unlist(Ytrainknn)
+# Xtrainknn = unlist(Xtrainknn) # unlist to convert from list to vector
+# Ytrainknn = unlist(Ytrainknn)
 
 # Loop through different number of neighbors
 for (k in allK){
@@ -274,8 +274,6 @@ for (k in allK){
     error.folds = rbind(error.folds, tmp) # combine results }
   }
 }
-
-head(error.folds, 10)
 ```
 
 We wanted to decide the optimal k for k-NN, using error.folds. For results, we wanted to find the type (training or test) of error and the corresponding value for each fold and each neighbor. We did this using the melt() function, as shown below.
@@ -296,27 +294,27 @@ val.error.means = errors %>%
   filter(error==min(error))
 # Best number of neighbors
 # if there is a tie, pick larger number of neighbors for simpler model 
-numneighbor = max(val.error.means$neighbors)
+numneighbor = max(allK[validation.error == min(validation.error)])
 numneighbor
 ```
 
-As shown above, we found that a 50-NN classifier would be best. Finally, we were able to calculate the test MSE using the knn prediction. 
+As shown above, we found that a 98-NN classifier would be best. Finally, we were able to calculate the test MSE using the knn prediction. 
 
 ```{r}
 # train knn regressor and make predictions on training set using k=20
 pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
 # head(pred.Ytrainknn)
 # get training MSE
-mean((pred.Ytrainknn$pred - Ytrainknn)^2) # 79.66631
+mean((pred.Ytrainknn$pred - Ytrainknn)^2) # 82.51655
 
 # now make predictions on test set (just to have predict code)
-Ytrain <- as.data.frame(Ytrainknn)
+Ytrainknn <- as.data.frame(Ytrainknn)
 pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
-head((pred.Ytestknn$pred - Ytestknn)^2) # 186.0496 62.4100 197.1216 19.8916 26.2144 45.1584
-mean((pred.Ytestknn$pred - Ytestknn)^2) # 82.41085
+head((pred.Ytestknn$pred - Ytestknn)^2) # 174.61735  58.72564 204.08163  30.92722  56.25000  37.35954
+mean((pred.Ytestknn$pred - Ytestknn)^2) # 83.92452
 ```
 
-Thus, we found or training MSE to be 0.3100 and our test MSE to be 0.3490 for this model. This is a considerably low MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
+Thus, we found or training MSE to be 82.51655 and our test MSE to be 83.92452 for this model. This is a low MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
 
 ### Elastic Net Model Fitting
 
@@ -508,7 +506,7 @@ Next, we fit the model with k-fold cross validation:
 #fit MARS model using k-fold cross-validation
 cv_mars <- train(
   x = subset(trainmars, select = -c(popularity)),
-  y = train$popularity,
+  y = trainmars$popularity,
   method = "earth",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
@@ -519,7 +517,7 @@ Finally, we used the MARS algorithm to find the model with the lowest test RMSE:
 
 ```{r}
 #display model with lowest test RMSE
-cv_mars$results %>%
+mars_model <- cv_mars$results %>%
   filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)    
 ```
 
@@ -535,28 +533,37 @@ ggplot(cv_mars)
 To compare this model to the other models we fit, we will convert RMSE to MSE:
 
 ```{r}
-testmse_mars <- cv_mars$results$RMSE[18]^2
-testmse_mars
+# elastic model prediction on test data (to have prediction code)
+mars.pred <- predict(cv_mars, test)
+
+# evaluate mse on the test data
+mars_mse <- mean((mars.pred - test$popularity)^2)
+mars_mse
 ```
 
-Thus, we found a test MSE value of 74.33276 from our model using multivariate adaptive regression splines. 
+Thus, we found a test MSE value of 74.13321 from our model using multivariate adaptive regression splines. 
 
 ### Comparing models
 
-We decided that choosing the model that with the lowest test MSE is indicative of the model that best fit the data. In that case, the models with the higher MSEs, such as MARS and elastic net, were ruled out. The models with the lowest test MSEs were k-nearest neighbors and BART, but with the former's test MSE of roughly 0.3 and the latter's of 1.7, k-nearest neighbors appeared to be the best of the models fitted.
+We decided that choosing the model that with the lowest test MSE is indicative of the model that best fit the data. From highest test MSE to lowest, the models were as follows:
+
+* BART, 407.76
+* kNN, 83.92
+* Elastic net, 76.22
+* MARS, 74.13
+
+Based on these results, the best model of the four was MARS. 
 
 ### Prediction
-
-
 
 #### Performance of our Prediction
 
 ```{r}
 # plot followed from https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html
-plot(Ytestknn, pred.Ytestknn$pred, xlab="y", ylab=expression(hat(y)))
+plot(test$popularity, mars.pred, xlab="y", ylab=expression(hat(y)))
 ```
 
-A good way to determine how well the model predictions performed in comparison to the test data is a plot of the predictions against the true values. In the plot, if the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our knn prediction is decent.
+A good way to determine how well the model predictions performed in comparison to the test data is a plot of the predictions against the true values. In the plot, if the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our MARS prediction is decent.
 
 # Conclusion
 
