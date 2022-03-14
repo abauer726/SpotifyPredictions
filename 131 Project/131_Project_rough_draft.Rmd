@@ -19,9 +19,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-We chose to explore Spotify music and the attributes that make a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song, and as a consequence, how certain songs become more popular over others. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, we decided to create specific goals - to get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
+We chose to explore Spotify music and the attributes that make a song popular because we all listen to music frequently and have specific genres that we enjoy. Something we’ve always wondered about is why we enjoy a particular song, and as a consequence, how certain songs become more popular over others. Is it the artist singing the song, the fact that we’ve heard it on the radio, the beats per minute, or is it whether the lyrics are explicit? To come up with a solution to these questions, we decided to create specific goals: get to know our data thoroughly, create visualizations of the attributes of our question, run regression models to find which attributes are most relevant, select and fine tune a model, and convey our results in an easily understandable report. This brings us to our research question: can we predict a song’s popularity based on its attributes? 
 
-Many of the current hits are actually created from machine learning algorithms. Whether they are enjoyable to listen to is another topic, however these machine-created hits successfully used algorithms for lyrics, beats, timing, and other factors to make these song popular. We were inspired by this topic in our research question, especially when wondering which factors in these algorithms had the most weight in the song creation. 
+Many of the current hits are actually created from machine learning algorithms. Whether they are enjoyable to listen to is another topic, but nevertheless these machine-created hits successfully used algorithms for lyrics, beats, timing, and other factors to make these song popular. We were inspired by this topic in our research question, especially when wondering which factors in these algorithms had the most weight in the song creation. 
 
 ### Loading Data and Packages
 
@@ -43,7 +43,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -161,7 +161,7 @@ There are several things that we extrapolated from the panel of plots: mainly, m
 
 Looking specifically at the variables that have the strongest relationships with popularity, the two predictors `year` and `avg_art_pop` appear to have the strongest positive correlation with popularity. This makes intuitive sense. 
 
-There are several factors that could explain why year has a positive, near linear, relationship with popularity: for one, the population has increased from the 1960s until present day. With more people comes a more active listening base for artists to reach. In addition, the methods by which we obtain music have changed over the decades, starting off with things like records and record players, CDs, iTunes, and now with music streaming through platforms like Spotify.
+There are several factors that could explain why year has a positive, near linear, relationship with popularity: for one, the population has increased from the 1960s until present day. With more people comes a more active listening base for artists to reach. Additionally, the methods by which we obtain music have changed over the decades, starting off with things like records and record players, CDs, iTunes, and now with music streaming through platforms like Spotify. While we didn't expect year to be so highly correlated with song popularity, it does make logical sense given further thought.
 
 It makes intuitive sense why an artist's average popularity would be positively correlated with popularity. An artist with high brand value or recognition, such as Kendrick Lamar, Ariana Grande, or Justin Bieber are more likely to have new releases listened to by significantly more people as opposed to a more obscure or lesser known artist such as Gus Dapperton or Peach Pit. 
 
@@ -192,7 +192,7 @@ Once we explored our data visually, we began to build our models. We looked at t
 
 ### Splitting our data
 
-Since our dataset has 120,750 observations (songs) in total, we safely split our dataset into train and test sets. That way we could use the training data to fit our model and save the test data to evaluate how well our model predicted the data (and calculate the test MSE). We chose to use 70% of the data for training and 30% of the data for testing. To implement this, we set the seed for reproducibility, took a random sample of 70% of the dataset, and used that sample to create a training set. The rest of the values were used for the testing set.  
+Since our dataset has 120,750 observations (songs) in total, our data can safely be split into train and test sets. That way we could use the training data to fit our model and save the test data to evaluate how well our model predicted the data (and calculate the test MSE). We chose to use 70% of the data for training and 30% of the data for testing. To implement this, we set the seed for reproducibility, took a random sample of 70% of the dataset, and used that sample to create a training set. The rest of the values were used for the testing set.  
 
 ```{r}
 # split training and testing data
@@ -210,43 +210,43 @@ test = full_data[-trainsample,]
 
 The k-nearest neighbors regression algorithm is a non-parametric method that takes observations from different neighbors to approximate the association between the predictors and the outcome variable (in our case, song popularity). K-NN was a good fit for our research question because the function can have many forms other than linear, which is what we were looking for. 
 
-The downside about the k-NN algorithm is that it can only be used when the variances of variables are similar. By using this model, we made the assumption that the variances of each predictor of popularity were similar enough for k-NN. Further, k-NN makes it difficult to "predict into the future", which, alongside the curse of dimensionality, makes it not very interpretable. 
+The downside about the k-NN algorithm is that it can only be used when the variances of variables are similar. By using this model, we made the assumption that the variances of each predictor of popularity were similar enough for k-NN to work. Further, k-NN makes it difficult to "predict into the future", which, alongside the curse of dimensionality, makes it not very interpretable. 
 
-To implement our k-nn model, we first loaded the required packages and use the do.chunk() function for k-fold cross-validation. We used folddef to specify an index to map all observations in the design matrix and all observations into the response into a set of k folds. For the k-NN model, our tuning parameter was k. Chunkid was used to set the fold used as the validation set. The do.chunk function as a whole trained the model using all folds but the chunkid fold, and it also computed the validation error for that last fold. The resulting dataframe consisted of all possible values of the folds and their test error rate. 
+To build our k-NN model, we first loaded the required packages and use the do.chunk() function for k-fold cross-validation. We used folddef to specify an index to map all observations in the design matrix and all observations into the response into a set of k folds. For the k-NN model, our tuning parameter was k, the number of neighbors. Chunkid was used to set the fold used as the validation set. The do.chunk function as a whole trained the model using all folds but the chunkid fold, and it also computed the validation error for that last fold. The resulting dataframe consisted of all possible values of the folds and their test error rate. 
 
 ```{r, message=FALSE, warning=FALSE}
-library(ISLR)
+library(ISLR) # load libraries
 library(tidyverse)
 library(class)
 library(FNN)
 
-do.chunk <- function(chunkid, folddef, Xdat, Ydat){
+do.chunk <- function(chunkid, folddef, Xdat, Ydat){ # for k-fold cross validation
   train = (folddef!= chunkid)
 
-  Xtr = Xdat[train,]
-  Ytr = Ydat[train]
+  Xtr = Xdat[train,] # split x train
+  Ytr = Ydat[train] # split y train
 
-  Xval = Xdat[!train,]
-  Yval = Ydat[!train]
+  Xval = Xdat[!train,] # split x validation
+  Yval = Ydat[!train] # split y validation
   
-  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr)
-  predYvl = knn(train = Xtr, test = Xval, cl = Ytr)
+  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr) # knn prediction y train
+  predYvl = knn(train = Xtr, test = Xval, cl = Ytr) # knn prediction y value
 
   data.frame(fold = chunkid,
-             train.error = mean(predYtr != Ytr),
-             val.error = mean(predYvl != Yval))
+             train.error = mean(predYtr != Ytr), 
+             val.error = mean(predYvl != Yval)) # load into dataset
 }
 ```
 
 Next, we specified that we wanted 10 folds and divided the data into ten intervals.
 
 ```{r}
-nfold = 10
-set.seed(100)
-folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample()
+nfold = 10 # 10 folds
+set.seed(100) # for reproducibility
+folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample() # divide data
 ```
 
-Next, we decided to have 100 neighbors considered, so we looped through all 100 of the neighbors for each different chunk id.
+We decided to have 100 neighbors considered, so we looped through all 100 of the neighbors for each different chunk id.
 
 ```{r}
 error.folds = NULL
@@ -260,9 +260,6 @@ Xtrainknn <- train %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE
 
 Ytestknn <- test$popularity
 Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
-
-# Xtrainknn = unlist(Xtrainknn) # unlist to convert from list to vector
-# Ytrainknn = unlist(Ytrainknn)
 
 # Loop through different number of neighbors
 for (k in allK){
@@ -298,7 +295,7 @@ numneighbor = max(allK[validation.error == min(validation.error)])
 numneighbor
 ```
 
-As shown above, we found that a 98-NN classifier would be best. Finally, we were able to calculate the test MSE using the knn prediction. 
+As shown above, we found that a 98-NN classifier would be best. Finally, we were able to calculate the test MSE using the k-NN prediction. 
 
 ```{r}
 # train knn regressor and make predictions on training set using k=20
@@ -314,7 +311,7 @@ head((pred.Ytestknn$pred - Ytestknn)^2) # 174.61735  58.72564 204.08163  30.9272
 mean((pred.Ytestknn$pred - Ytestknn)^2) # 83.92452
 ```
 
-Thus, we found or training MSE to be 82.51655 and our test MSE to be 83.92452 for this model. This is a low MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
+Thus, we found or training MSE to be 82.51655 and our test MSE to be 83.92452 for this model. We found this to be a relatively low MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
 
 ### Elastic Net Model Fitting
 
@@ -396,7 +393,7 @@ This value is larger of a test MSE than the one we have calculated so far, thus 
 
 ### Bayesian Additive Regression Trees (BART)
 
-The BART method uses decision trees for regression, constructing each tree randomly, similar to bagging and random forest models. Each new tree is trying to capture a "signal" that is not accounted for by the rest of the trees. BART is related to both bagging and random forest, as well as boosting, in that each tree is constructed randomly and each tree tries to capture a signal not yet accounted for by the current model. In the BART model, K is the number of regression trees and B is the number of iterations that the BART will run through. Each tree in BART is perturbed to avoid local minima and achieve a more thorough exploration of the model space (ISLR Ch 8).
+The BART method uses decision trees for regression, constructing each tree randomly, similar to bagging and random forest models. Each new tree is trying to capture a "signal" that is not accounted for by the rest of the trees. BART is related to both the bagging and random forest algorithms, as well as the boosting algorithm, in that each tree is constructed randomly and each tree tries to capture a signal not yet accounted for by the current model. In the BART model, K is the number of regression trees and B is the number of iterations that the BART will run through. Each tree in BART is perturbed to avoid local minima and achieve a more thorough exploration of the model space (ISLR Ch 8).
 
 Below is a description of the algorithm we used to construct our BART model. 
 ```{r, out.width = "400px"}
@@ -467,14 +464,14 @@ Finally, we were able to get the test MSE after we iterated through a 5-fold cro
 ```{r}
 # Test mse
 test_mse = mean((Ytestbart - predYval$yhat.test)^2)
-test_mse #407.7647???
+test_mse #407.7647
 ```
 
 A test MSE of 407.7647 was very surprising and almost immediately disqualified BART as a contender. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. In addition, our train and test errors were fairly similar.
 
 ### Multivariate Additive Regression Splines (MARS)
 
-The final algorithm we implemented was the multivariate adaptive regression splines (MARS). The MARS model is an ensemble of piece-wise linear functions that are joined together by hinge functions. This accounts for non-linearity between inputs and outputs. The MARS algorithm has two stages - a forward stage and a backward stage. The forward stage generates many pairs of functions as candidates for the basis of the model. The backward stage is considered the pruning stage - the model goes through all of the functions and deletes the functions that don't add further value to the model performance. 
+The final algorithm we implemented was the multivariate adaptive regression splines (MARS). The MARS model is an ensemble of piece-wise linear functions that are joined together by hinge functions. This accounts for non-linearity between inputs and outputs. The MARS algorithm has two stages: a forward stage and a backward stage. The forward stage generates many pairs of functions as candidates for the basis of the model. The backward stage is considered the pruning stage; the model goes through all of the functions and deletes the functions that don't add further value to the model performance. 
 
 We chose to use the MARS algorithm because we saw that the relationship between popularity and our predictors is often non-linear. Additionally, we had many predictor variables and the MARS algorithm was capable of achieving good performance on a regression problem with many predictor variables. 
 
@@ -483,7 +480,7 @@ In a nutshell, the general MARS method works like this:
 2. Fit a regression model to each piece.
 3. Use k-fold cross-validation to choose a value for k. 
 
-Our first step was to create a tuning grid for pruning and set a seed for reproductability:
+Our first step was to create a tuning grid for pruning and set a seed for reproducability:
 
 ```{r, message=FALSE, warning=FALSE}
 library(earth) # library for fitting MARS models
@@ -500,7 +497,7 @@ hyper_grid <- expand.grid(degree = 1:3,
 set.seed(123)
 ```
 
-Next, we fit the model with k-fold cross validation:
+Next, we fit the MARS model into a 10-fold cross validation:
 
 ```{r}
 #fit MARS model using k-fold cross-validation
@@ -518,10 +515,12 @@ Finally, we used the MARS algorithm to find the model with the lowest test RMSE:
 ```{r}
 #display model with lowest test RMSE
 mars_model <- cv_mars$results %>%
-  filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)    
+  filter(nprune == cv_mars$bestTune$nprune, degree == cv_mars$bestTune$degree)   
+
+mars_model
 ```
 
-This result shows that the best model found by the MARS method was of degree 3 with 18 prunes. The R-squared was 0.6928, which is fairly strong correlation for this mode. The test root mean squared error was 8.6215.
+This result shows that the best model found by the MARS method was of degree 3 with 18 prunes. The R-squared was 0.6928, which is fairly strong correlation. The test root mean squared error was 8.6215.
 
 Below is a graph of the test RMSE by terms and degree - one can see that the third degree has the lowest RMSE and the number of terms appear to minimize RMSE at a value between 10 and 20 (hence why our value of 18 makes sense).
 
@@ -548,44 +547,95 @@ Thus, we found a test MSE value of 74.13321 from our model using multivariate ad
 We decided that choosing the model that with the lowest test MSE is indicative of the model that best fit the data. From highest test MSE to lowest, the models were as follows:
 
 * BART, 407.76
-* kNN, 83.92
+* k-NN, 83.92
 * Elastic net, 76.22
-* MARS, 74.13
+* MARS, 74.1
 
-Based on these results, the best model of the four was MARS. 
+Based on these results, the best performing model of the four was MARS. 
 
-### Prediction
+### Performance of our Prediction
 
-#### Performance of our Prediction
 
-```{r}
-# plot followed from https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html
-plot(test$popularity, mars.pred, xlab="y", ylab=expression(hat(y)))
+reproducing the plot from above, comment on tuning - # terms and degree impact on rmse
+
+```{r, message = FALSE, warning = FALSE}
+plot(cv_mars)
+```
+variable importance plot - i think we should get rid of this since it is so weird and gives away the fact that avg_art_pop has way too much influence
+
+```{r, message = FALSE, warning = FALSE}
+vip(cv_mars)
 ```
 
 A good way to determine how well the model predictions performed in comparison to the test data is a plot of the predictions against the true values. In the plot, if the values were perfectly predicted, the points would fall along the y=x line, for the $\hat{y}$s would match the $y$s. In this case, our MARS prediction is decent.
 
+grant's plot - feel free to change color, black line is linear trend line
+
+```{r, message = FALSE, warning = FALSE}
+plot(test$popularity, mars.pred, xlab="actual", ylab="predicted", col = "darkseagreen", cex = 0.6) + # scatterplot
+  abline(lm(test$popularity ~ mars.pred)) # add trend line
+```
+
+take a sample of the residuals for visual purposes: we want to be able to see the data in smaller quantity
+
+```{r}
+resid <- test$popularity - mars.pred # get residuals
+df_mars_visual <- data.frame(test$popularity, mars.pred, resid) # data frame of actual, predicted, and resoduals 
+sample_mars <- df_mars_visual[sample(nrow(df_mars_visual), 300), ] # 300 value sample of the datframe
+```
+
+same scatterplot as above but with sample of data (for visualization purposes)
+
+```{r, message = FALSE, warning = FALSE}
+plot(sample_mars$test.popularity, sample_mars$y, xlab= 'actual', ylab= 'predicted', main = "Sample: predicted vs actual values using MARS", col = "skyblue", cex = 0.7) + # same scatter with sampled data
+abline(lm(sample_mars$test.popularity ~ sample_mars$y)) # trend line
+```
+residual plot: actual vs predicted with residual line
+
+```{r, message = FALSE, warning = FALSE}
+plot(sample_mars$y.1, ylab = 'MARS residuals', col = 'blue', cex = 0.4) + # scatter
+  abline(0,0, col = 'red') # horizontal residual line
+```
+
+NOTES FROM ANNA:
+For prediction code, make sure to comment on how the MSE of 74.13, indicating that on average, the prediction code was 8.6 percent off of the actual song popularity (that would be RMSE).
+- hard to determine what accuracy is considered "good"
+
 # Conclusion
 
-Thus, we have answered our research question of, "Can we predict a song’s popularity based on its attributes?" by going through the entire machine learning exploration process. We started by tidying our data in preparation for a regression model and adding the variable, "artist popularity", which was the average popularity of all of an artists songs. The tidying process took longer than expected when we encountered dataset issues; some datasets were too large for Github, some datasets didn't have key variables such as "artist popularity", etcetera, and choosing the right one took a lot of trial and error. 
+Thus, we have answered our research question of, "Can we predict a song’s popularity based on its attributes?", by going through the entire machine learning exploration process. We started by tidying our data in preparation for a regression model and adding the variable, "artist popularity", which was the average popularity of all of an artists songs. The tidying process took longer than expected when we encountered dataset issues; some datasets were too large for Github, some datasets didn't have key variables such as "artist popularity", etcetera, and choosing the right one took a lot of trial and error. 
 
 Next, we plotted our variables of interest to identify key patterns. We made a scatterplot of every quantitative variable in our models and a bar plot of every categorical variable we had. This allowed us to get a glimpse of which predictors might be influential and make sure that we were aware of any patterns that might violate an assumption in our models. For this reason, we decided not to run a linear regression model because our data violated too many of the model assumptions! We also created a correlation matrix and a heatmap to see which predictors were most correlated with song popularity, and which predictors varied together (collinearity). Finally, we made a density histogram of song popularity and compared it to a normal curve - it was nearly a perfect normal distribution!
 
-Once we completed the exploratory data analysis, we were able to research the models that might best fit our data. We looked into aspects such as number of predictors, best prediction accuracy, model flexibility and interpretability, and other model specifications mentioned in lecture. Finally, we landed on the following algorithms: k-nearest neighbors, elastic net, Bayesian additive regression trees (BART), and multivariate adaptive regression splines (MARS). After fitting, tuning, and running cross-validation on each model, we found that the model with the lowest MSE was the k-nearest neighbors.
+Once we completed the exploratory data analysis, we were able to research the models that might best fit our data. We looked into aspects such as number of predictors, best prediction accuracy, model flexibility and interpretability, and other model specifications mentioned in lecture. Finally, we landed on the following algorithms: k-nearest neighbors, elastic net, Bayesian additive regression trees (BART), and multivariate adaptive regression splines (MARS). After fitting, tuning, and running cross-validation on each model, we found that the model with the lowest MSE was the MARS.
 
-To finish our project, we tuned and ran a prediction using the KNN model to answer our research question. We observed that the prediction did a fairly good job at predicting popularity. [insert results here]
+To finish our project, we tuned and ran a prediction using the MARS model to answer our research question. We observed that the prediction did a fairly good job at predicting popularity. The test MSE was 74.13, which we found to be a fairly low MSE given the data. Since song popularity is measured in a percentile between 0 and 100, the MARS model performed decently well, being an average of 8 percentiles off of the true song popularity. 
 
-Toward the end of the project, we also realized that the "artist popularity" variable we created may violate a rule of prediction - if the variable includes the average popularity of all songs for that artist, this may include future values. For example, if an observation is Katy Perry's, "Spit", released in 2003, the "artist popularity" variable for that observation includes Katy Perry's future hits that haven't been released yet in its average. If we were to re-do this project, we could address this problem by trying to make avg_art_pop a variable that only relies on the observations that chronologically come before it. Another area we can improve on for our next project would be in our decision making regarding our research question and the data we use to answer it. Our approach in this project was a bit misguided; we were unsure of the topic we wanted to focus on for our project, so we started by looking at some general data sets and seeing what caught our eye. After some discussion, we decided on pursuing something within our shared interest of music, but we began looking for a dataset before we were certain about the research question we wanted to explore. We thought that we would be able to create our research question from a data set we decided on. As a result, we went through multiple datasets and multiple research questions before we were able to finally settle on the ones presented above. In hindsight, we feel that we would have been able to save time and labor by deciding on a topic and creating our research question before beginning our search for data.
+Toward the end of the project, we also realized that the "artist popularity" variable we created may violate a rule of prediction - if the variable includes the average popularity of all songs for that artist, this may include future values. For example, if an observation is Katy Perry's, "Spit", released in 2003, the "artist popularity" variable for that observation includes Katy Perry's future hits that haven't been released yet in its average. If we were to re-do this project, we could address this problem by trying to make average artist popularity a variable that only relies on the observations that chronologically come before it. 
+
+Another area we can improve on for our next project would be in our decision making regarding our research question and the data we use to answer it. Our approach in this project was a bit misguided; we were unsure of the topic we wanted to focus on for our project, so we started by looking at some general data sets and seeing what caught our eye. After some discussion, we decided on pursuing something within our shared interest of music, but we began looking for a dataset before we were certain about the research question we wanted to explore. We thought that we would be able to create our research question from a data set we decided on. As a result, we went through multiple datasets and multiple research questions before we were able to finally settle on the ones presented above. In hindsight, we feel that we would have been able to save time and labor by deciding on a topic and creating our research question before beginning our search for data.
 
 
 # Sources
 
-ISLR (insert page(s)/sections later)
+Introduction to Statistical Learning with Applications in R (James et. al.) Chapter 4, 8 
 
-Lab 4 Cross-Validation
+PSTAT 131 Lab 2: k-NN 
+
+PSTAT 131 Lab 4: Cross-Validation
+
+PSTAT 131 Lab 5: Ridge-Lasso
 
 ![elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
+
+![elastic net code](https://daviddalpiaz.github.io/r4sl/elastic-net.html)
+
+![elastic net code](https://www.geeksforgeeks.org/)
+
+![BART and overfitting](https://jmloyola.github.io/posts/2019/06/introduction-to-bart)
 
 ![MARS model information](https://towardsdatascience.com/mars-multivariate-adaptive-regression-splines-how-to-improve-on-linear-regression-e1e7a63c5eae)
 
 ![MARS code](https://www.statology.org/multivariate-adaptive-regression-splines-in-r/)
+
+![MARS plots](https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html)
