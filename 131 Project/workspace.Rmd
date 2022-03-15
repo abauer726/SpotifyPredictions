@@ -115,3 +115,8 @@ train = full_data[trainsample,]
 # The rest as test data
 test = full_data[-trainsample,]
 ```
+
+
+
+
+\

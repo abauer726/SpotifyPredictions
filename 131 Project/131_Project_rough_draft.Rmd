@@ -43,7 +43,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -271,7 +271,7 @@ for (k in allK){
 }
 ```
 
-We wanted to decide the optimal k for k-NN, using error.folds. For results, we wanted to find the type (training or test) of error and the corresponding value for each fold and each neighbor. We did this using the `melt()` function, as shown below.
+We wanted to decide the optimal number of neighbors for k-NN, using error.folds. For results, we wanted to find the type (training or test) of error and the corresponding value for each fold and each neighbor. We did this using the `melt()` function, as shown below.
 
 ```{r, message=FALSE, warning=FALSE}
 # Transform the format of error.folds for further convenience
@@ -302,6 +302,7 @@ pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k =
 # get training MSE
 mean((pred.Ytrainknn$pred - Ytrainknn)^2) # 82.51655
 
+set.seed(888)
 # now make predictions on test set (just to have predict code)
 Ytrainknn <- as.data.frame(Ytrainknn)
 pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
@@ -414,7 +415,7 @@ Xtestbart <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 
 We then implemented k-fold cross validation with our BART model, which is similar to the k-NN cross validation that we did above:
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # do chunk k-fold cv with BART
 do.chunk.bart <- function(chunkid, folddef, Xdat, Ydat, ...){
   # Get training index
@@ -460,7 +461,7 @@ head(error.folds)
 
 Finally, we were able to get the test MSE after we iterated through a 5-fold cross validation. 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Test mse
 test_mse = mean((Ytestbart - predYval$yhat.test)^2)
 test_mse #407.7647
@@ -631,18 +632,19 @@ PSTAT 131 Lab 4: Cross-Validation
 
 PSTAT 131 Lab 5: Ridge-Lasso
 
-![Kaggle dataset](https://www.kaggle.com/vatsalmavani/music-recommendation-system-using-spotify-dataset/data)
+[Kaggle dataset](https://www.kaggle.com/vatsalmavani/music-recommendation-system-using-spotify-dataset/data)
 
-![elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
+[elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
 
-![elastic net code](https://daviddalpiaz.github.io/r4sl/elastic-net.html)
+[elastic net code](https://daviddalpiaz.github.io/r4sl/elastic-net.html)
 
-![elastic net code](https://www.geeksforgeeks.org/)
+[elastic net code](https://www.geeksforgeeks.org/)
 
-![BART and overfitting](https://jmloyola.github.io/posts/2019/06/introduction-to-bart)
+[BART and overfitting](https://jmloyola.github.io/posts/2019/06/introduction-to-bart)
 
-![MARS model information](https://towardsdatascience.com/mars-multivariate-adaptive-regression-splines-how-to-improve-on-linear-regression-e1e7a63c5eae)
+[MARS model information](https://towardsdatascience.com/mars-multivariate-adaptive-regression-splines-how-to-improve-on-linear-regression-e1e7a63c5eae)
 
-![MARS code](https://www.statology.org/multivariate-adaptive-regression-splines-in-r/)
+[MARS code](https://www.statology.org/multivariate-adaptive-regression-splines-in-r/)
 
-![MARS plots](https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html)
+[MARS plots](https://quantdev.ssri.psu.edu/sites/qdev/files/kNN_tutorial.html)
+
