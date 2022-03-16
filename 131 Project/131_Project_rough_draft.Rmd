@@ -43,7 +43,7 @@ library(ggplot2)
 library(corrplot)
 
 # load music.csv
-music <- read.csv("/Users/kimbauer/Desktop/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
+music <- read.csv("/Users/Grant/DoubleProjectGroup/131 Project/Spotify Dataset/musicdata.csv")
 
 # music.csv preview
 head(music)
@@ -55,9 +55,9 @@ In our initial look at this dataset, we wanted to identify any concerns early on
 
 Additionally, we were thrown off by the amount of zero values we saw in our initial glance at the data, specifically in the columns `explicit` and `mode`. After further examination, we realized that they were coded as dummy variables, so this was not a problem for our exploration. We also determined that we did not want to drop either of these variables from our dataset, as we felt that if a song is explicit or not could be influential in how popular it becomes, and a song being in a minor key or a major key could also be influential in how popular it becomes. Thus, we kept these dummy variables in our dataset, and we later coded them to factor variables.
 
-Because our research question required us to take a regression approach, we did have a concern of our data having too many categorical variables to fit into our regressive model. To address this problem, we thought about which variables would be most important to our data exploration. One of the variables that we thought would be most important to include was 'artists', as we know that the artist of a song can have a direct impact on the song's popularity: a more popular artist is more likely to release a song that has higher popularity, and vice versa. With the `artists` column being string-valued categorical observations, and with there being so many different artists in our data, we wanted to find a way to incorporate this variable into our data as a unique but quantitative variable. We decided that this would be the next step of our data pre-processing. 
+Because our research question required us to take a regression approach, we did have a concern of our data having too many categorical variables to fit into our regressive model. To address this problem, we thought about which variables would be most important to our data exploration. One of the variables that we thought would be most important to include was `artists`, as we know that the artist of a song can have a direct impact on the song's popularity: a more popular artist is more likely to release a song that has higher popularity, and vice versa. With the `artists` column being string-valued categorical observations, and with there being so many different artists in our data, we wanted to find a way to incorporate this variable into our data as a unique but quantitative variable. We decided that this would be the next step of our data pre-processing. 
 
-In order to keep the important variable of `artists` but make it quantitative, we decided to take the average song popularity by each artist in the data, and assign that variable of average artist popularity to each artist as a new variable in the dataset. Thus, our dataset would lose the column 'artists' containing each artist's name, and instead assign the variable `avg_art_pop` as the artist's average song popularity. This variable mutation process is outlined in the code chunk below.
+In order to keep the important variable of `artists` but make it quantitative, we decided to take the average song popularity by each artist in the data, and assign that variable of average artist popularity to each artist as a new variable in the dataset. Thus, our dataset would lose the column `artists` containing each artist's name, and instead assign the variable `avg_art_pop` as the artist's average song popularity. This variable mutation process is outlined in the code chunk below.
 
 ```{r}
 # create a new table that aggregates the variables popularity and artists and finds the mean song popularity for each given artist
@@ -218,7 +218,7 @@ library(tidyverse)
 library(class)
 library(FNN)
 
-do.chunk <- function(chunkid, folddef, Xdat, Ydat){ # for k-fold cross validation
+do.chunk <- function(chunkid, folddef, Xdat, Ydat,...){ # for k-fold cross validation
   train = (folddef!= chunkid)
 
   Xtr = Xdat[train,] # split x train
@@ -227,8 +227,8 @@ do.chunk <- function(chunkid, folddef, Xdat, Ydat){ # for k-fold cross validatio
   Xval = Xdat[!train,] # split x validation
   Yval = Ydat[!train] # split y validation
   
-  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr) # knn prediction y train
-  predYvl = knn(train = Xtr, test = Xval, cl = Ytr) # knn prediction y value
+  predYtr = knn(train = Xtr, test = Xtr, cl = Ytr,...) # knn prediction y train
+  predYvl = knn(train = Xtr, test = Xval, cl = Ytr,...) # knn prediction y value
 
   data.frame(fold = chunkid,
              train.error = mean(predYtr != Ytr), 
@@ -244,12 +244,12 @@ set.seed(100) # for reproducibility
 folds = cut(1:nrow(train), breaks = nfold, labels = FALSE) %>% sample() # divide data
 ```
 
-We decided to have 100 neighbors considered, so we looped through all 100 of the neighbors for each different chunk id.
+We decided to have 50 neighbors considered, so we looped through all 50 of the neighbors for each different chunk id.
 
 ```{r}
 error.folds = NULL
 # Give possible number of nearest neighbours to be considered
-allK = 1:100
+allK = 1:50
 # Set seed since do.chunk() contains a random component induced by knn()
 set.seed(888)
 
@@ -262,13 +262,15 @@ Xtestknn <- test %>% select(-popularity) %>% scale(center = TRUE, scale = TRUE)
 # Loop through different number of neighbors
 for (k in allK){
 # Loop through different chunk id 
-  for (j in seq(3)){
+  for (j in seq(10)){
     tmp = do.chunk(chunkid=j, folddef=folds, Xdat=Xtrainknn,
-                   Ydat=Ytrainknn)
+                   Ydat=Ytrainknn, k=k)
     tmp$neighbors = k # Record the last number of neighbor
     error.folds = rbind(error.folds, tmp) # combine results }
   }
 }
+
+head(error.folds, 10)
 ```
 
 We wanted to decide the optimal number of neighbors for k-NN, using error.folds. For results, we wanted to find the type (training or test) of error and the corresponding value for each fold and each neighbor. We did this using the `melt()` function, as shown below.
@@ -289,28 +291,26 @@ val.error.means = errors %>%
   filter(error==min(error))
 # Best number of neighbors
 # if there is a tie, pick larger number of neighbors for simpler model 
-numneighbor = max(allK['val.error' == min('val.error')])
+numneighbor = max(val.error.means$neighbors)
 numneighbor
 ```
 
-As shown above, we found that a 98-NN classifier would be best. Finally, we were able to calculate the test MSE using the k-NN prediction. 
+The 10-fold cross validation found that a 2-NN classifier would be best. This concerned us because of how many observations were considered in model building. This led us to believe that the model might overfit the training data. To check, we calculated the training and test MSE using the k-NN prediction. 
 
 ```{r}
 # train knn regressor and make predictions on training set using k=98
+set.seed(888)
 pred.Ytrainknn = knn.reg(train = Xtrainknn, test = Xtrainknn, y = Ytrainknn, k = numneighbor)
-# head(pred.Ytrainknn)
 # get training MSE
-mean((pred.Ytrainknn$pred - Ytrainknn)^2) # 82.51655
+mean((pred.Ytrainknn$pred - Ytrainknn)^2)
 
 set.seed(888)
-# now make predictions on test set (just to have predict code)
-Ytrainknn <- as.data.frame(Ytrainknn)
+# now make predictions on test set
 pred.Ytestknn = knn.reg(train = Xtrainknn, test = Xtestknn, y = Ytrainknn, k = numneighbor)
-head((pred.Ytestknn$pred - Ytestknn)^2) # 174.61735  58.72564 204.08163  30.92722  56.25000  37.35954
-mean((pred.Ytestknn$pred - Ytestknn)^2) # 83.92452
+mean((pred.Ytestknn$pred - Ytestknn)^2) 
 ```
 
-Thus, we found or training MSE to be 82.51655 and our test MSE to be 83.92452 for this model. We found this to be a relatively low test MSE, and the training and test MSEs being so similar led us to believe that the k-NN model properly prevented overfitting. 
+The training MSE was 39.41739 and the test MSE was 117.1338. The fact that there was such a large discrepancy between the training and test MSEs was a sign of overfitting. This, in addition to the relatively high test MSE, showed that the k-NN regression model did not perform well for our data.
 
 ### Elastic Net
 
@@ -380,7 +380,7 @@ best_elastic
 Once our elastic net model was trained, we wanted to make a prediction on our test data. To do this, we used the `predict()` function on our tuned and cross-validated model, and then we calculated the test MSE, which is printed out below.  
 
 ```{r}
-# elastic model prediction on test data (to have prediction code)
+# elastic model prediction on test data
 elastic.pred <- predict(elastic_model, x.eltest)
 
 # evaluate mse on the test data
@@ -464,10 +464,10 @@ Finally, we were able to get the test MSE after we iterated through a 5-fold cro
 ```{r, message=FALSE, warning=FALSE}
 # Test mse
 test_mse = mean((Ytestbart - predYval$yhat.test)^2)
-test_mse #407.7647
+test_mse
 ```
 
-A test MSE of 407.7647 was very surprising and almost immediately disqualified BART as a contender. We weren't too worried about overfitting because the algorithms we chose accounted for that, and we didn't have too many predictors in comparison to the number of observations. In addition, our train and test errors were fairly similar.
+A test MSE of 407.7647 was surprisingly high and demonstrated that BART did not perform well for our data. 
 
 ### Multivariate Additive Regression Splines (MARS)
 
@@ -546,8 +546,8 @@ Thus, we found a test MSE value of 74.13321 from our model using multivariate ad
 
 We decided that choosing the model that with the lowest test MSE is indicative of the model that best fit the data. From highest test MSE to lowest, the models were as follows:
 
-* BART had a test MSE of 407.76, so on average, it ws 20.19 percentiles off the true popularity.
-* k-NN had a test MSE of 83.92, so on average, it was 9.16 percentiles off the actual song popularity.
+* BART had a test MSE of 407.76, so on average, it was 20.19 percentiles off the true popularity.
+* k-NN had a test MSE of 117.13, so on average, it was 10.82 percentiles off the actual song popularity.
 * Elastic net had a test MSE of 76.22, so on average, it was 8.73 percentiles off the actual song popularity.
 * MARS had a test MSE of 74.13, so on average, it was 8.6 percentiles off the actual song popularity.
 
@@ -576,7 +576,7 @@ From the above plot, we can see that our prediction was decent, as the points fo
 
 We can take an even closer look at this relationship between actual values and predicted values by taking a sample of the data for visual purposes, as we want to be able to see the data in smaller quantity. This sample is taken below:
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 resid <- test$popularity - mars.pred # get residuals
 df_mars_visual <- data.frame(test$popularity, mars.pred, resid) # data frame of actual, predicted, and residuals 
 sample_mars <- df_mars_visual[sample(nrow(df_mars_visual), 300), ] # 300 observation sample of the dataframe
@@ -634,11 +634,11 @@ PSTAT 131 Lab 5: Ridge-Lasso
 
 [Kaggle dataset](https://www.kaggle.com/vatsalmavani/music-recommendation-system-using-spotify-dataset/data)
 
-[elastic net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
+[Elastic Net model information](https://towardsdatascience.com/regulate-your-regression-model-with-ridge-lasso-and-elasticnet-92735e192e34)
 
-[elastic net code](https://daviddalpiaz.github.io/r4sl/elastic-net.html)
+[Elastic Net code](https://daviddalpiaz.github.io/r4sl/elastic-net.html)
 
-[elastic net code](https://www.geeksforgeeks.org/)
+[Elastic Net code](https://www.geeksforgeeks.org/)
 
 [BART and overfitting](https://jmloyola.github.io/posts/2019/06/introduction-to-bart)
 
